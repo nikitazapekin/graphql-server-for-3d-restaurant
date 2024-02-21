@@ -5,7 +5,6 @@ type User {
     username: String
     password: String 
 }
-
 input UserInput {
     id: ID
     username: String!
