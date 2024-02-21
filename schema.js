@@ -26,9 +26,6 @@ type Mutation {
     createUser(input: UserInput): User
 }
 
-
-
-
 type Subscription {
     postCreated: Post
   }
