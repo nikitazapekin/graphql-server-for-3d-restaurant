@@ -170,7 +170,7 @@ incrementNumber();
 //yarn add ts-node --dev
 */
 
-
+ /*
 
 const { ApolloServer } = require('@apollo/server');
 const { expressMiddleware } = require('@apollo/server/express4');
@@ -185,21 +185,15 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const PORT = 5000;
 const pubsub = new PubSub();
-
-// A number that we'll increment over time to simulate subscription events
 let currentNumber = 0;
-
-// Schema definition
 const typeDefs = `
   type Query {
     currentNumber: Int
   }
-
   type Subscription {
-    numberIncremented: Int
+    currentNumber: Int
   }
 `;
-
 // Resolver map
 const resolvers = {
   Query: {
@@ -208,9 +202,12 @@ const resolvers = {
     },
   },
   Subscription: {
-    numberIncremented: {
-      subscribe: () => pubsub.asyncIterator(['NUMBER_INCREMENTED']),
-    },
+  //currentNumber: {
+  //    subscribe: () => pubsub.asyncIterator(['NUMBER_INCREMENTED']),
+  //  },
+   // numberIncremented: {
+     // subscribe: () => pubsub.asyncIterator(['NUMBER_INCREMENTED']),
+   // }, 
   },
 };
 
@@ -267,10 +264,178 @@ const server = new ApolloServer({
   function incrementNumber() {
     currentNumber++;
     console.log(currentNumber)
-    pubsub.publish('NUMBER_INCREMENTED', { numberIncremented: currentNumber });
+   // pubsub.publish('NUMBER_INCREMENTED', { numberIncremented: currentNumber });
+  // pubsub.publish('NUMBER_INCREMENTED', { currentNumber: currentNumber });
+  //pubsub.publish('currentNumber', { currentNumber: currentNumber });
+  pubsub.publish('NUMBER_INCREMENTED', { numberIncremented: currentNumber });
+
     setTimeout(incrementNumber, 1000);
   }
   
   // Start incrementing
   incrementNumber();
 })();
+
+*/
+
+/*
+const { ApolloServer } = require('@apollo/server');
+const { expressMiddleware } = require('@apollo/server/express4');
+const { ApolloServerPluginDrainHttpServer } = require('@apollo/server/plugin/drainHttpServer');
+const express = require('express');
+const { createServer } = require('http');
+const { makeExecutableSchema } = require('@graphql-tools/schema');
+const { WebSocketServer } = require('ws');
+const { useServer } = require('graphql-ws/lib/use/ws');
+const { PubSub } = require('graphql-subscriptions');
+const bodyParser = require('body-parser');
+const cors = require('cors');
+const PORT = 5000;
+const pubsub = new PubSub();
+let currentNumber = 0;
+const typeDefs = `
+  type Query {
+    currentNumber: Int
+  }
+  type Subscription {
+    currentNumber: Int
+  }
+`;
+// Resolver map
+const resolvers = {
+  Query: {
+    currentNumber() {
+      return currentNumber;
+    },
+  },
+  Subscription: {
+  currentNumber: {
+     subscribe: () => pubsub.asyncIterator(['NUMBER_INCREMENTED']),
+  },
+
+  },
+};
+
+const schema = makeExecutableSchema({ typeDefs, resolvers });
+const app = express();
+app.use(cors());
+const httpServer = createServer(app);
+const wsServer = new WebSocketServer({
+  server: httpServer,
+  path: '/graphql',
+});
+const serverCleanup = useServer({ schema }, wsServer);
+
+// Set up ApolloServer.
+const server = new ApolloServer({
+  schema,
+  plugins: [
+    // Proper shutdown for the HTTP server.
+    ApolloServerPluginDrainHttpServer({ httpServer }),
+
+    // Proper shutdown for the WebSocket server.
+    {
+      async serverWillStart() {
+        return {
+          async drainServer() {
+            await serverCleanup.dispose();
+          },
+        };
+      },
+    },
+  ],
+});
+
+(async () => {
+  await server.start();
+  app.use('/graphql', bodyParser.json(), expressMiddleware(server));
+  httpServer.listen(PORT, () => {
+    console.log(`🚀 Query endpoint ready at http://localhost:${PORT}/graphql`);
+    console.log(`🚀 Subscription endpoint ready at ws://localhost:${PORT}/graphql`);
+  });
+  
+  function incrementNumber() {
+    currentNumber++;
+    console.log(currentNumber)
+   pubsub.publish('NUMBER_INCREMENTED', { currentNumber: currentNumber });
+
+
+    setTimeout(incrementNumber, 1000);
+  }
+  
+  // Start incrementing
+  incrementNumber();
+})(); */ 
+const express = require('express');
+const { ApolloServer } = require('apollo-server-express');
+const { createServer } = require('http');
+const { makeExecutableSchema } = require('@graphql-tools/schema');
+const { PubSub } = require('graphql-subscriptions');
+const { execute, subscribe } = require('graphql');
+const { SubscriptionServer } = require('subscriptions-transport-ws');
+
+const PORT = 5000;
+
+// Ваши typeDefs и resolvers здесь
+const typeDefs = `
+  type Query {
+    currentNumber: Int
+  }
+  type Subscription {
+    currentNumber: Int
+  }
+`;
+
+const pubsub = new PubSub();
+let currentNumber = 0;
+
+const resolvers = {
+  Query: {
+    currentNumber() {
+      return currentNumber;
+    },
+  },
+  Subscription: {
+    currentNumber: {
+      subscribe: () => pubsub.asyncIterator(['NUMBER_INCREMENTED']),
+    },
+  },
+};
+
+const schema = makeExecutableSchema({ typeDefs, resolvers });
+
+const server = new ApolloServer({
+  schema,
+});
+
+async function startServer() {
+  await server.start();
+
+  const app = express();
+  server.applyMiddleware({ app });
+
+  const httpServer = createServer(app);
+
+  const subscriptionServer = SubscriptionServer.create(
+    { schema, execute, subscribe },
+    { server: httpServer, path: '/graphql' }
+  );
+
+  httpServer.listen(PORT, () => {
+    console.log(`🚀 Server ready at http://localhost:${PORT}${server.graphqlPath}`);
+    console.log(`🚀 Subscriptions ready at ws://localhost:${PORT}${server.graphqlPath}`);
+  });
+
+  function incrementNumber() {
+    currentNumber++;
+    console.log(currentNumber);
+    pubsub.publish('NUMBER_INCREMENTED', { currentNumber: currentNumber });
+
+    setTimeout(incrementNumber, 1000);
+  }
+
+  // Start incrementing
+  incrementNumber();
+}
+
+startServer().catch(error => console.error(error));
