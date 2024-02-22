@@ -462,7 +462,7 @@ const resolvers = {
           timeForBooking: table.timeForBooking
         };
       } else {
-        return null; // Возвращаем null, если таблица не найдена
+        return null; 
       }
     }
     
