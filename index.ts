@@ -60,6 +60,7 @@ const tables = [
 const PORT = 5000;
 
 const users = [{ id: 1, username: "Vasya", age: 25 }];
+//[{"tableID":1,"from":"2024-02-22T10:00:00","to":"2024-02-22T12:00:00","amountOfChairs":3,"dataOfBooking":"ss","timeForBooking":"2024-02-22T10:00:00-2024-02-22T12:00:00"}]
 const typeDefs = `
 type TableArray {
   tableID: Int
@@ -73,11 +74,12 @@ type TableInfo {
   id: Int
   amountOfChairs: Int
   timeForBooking: [TableArray]
+ 
 }
   type Query {
     currentNumber: Int
     getUser(id: ID!): User
-    getTableInfo(id: ID!):  TableInfo
+    getTableInfo(id: ID!, date: String!):  TableInfo
   }
 
   type Subscription {
@@ -143,11 +145,9 @@ const createBookingAction = (input) => {
 const resolvers = {
   MutationBookingAction: {
     createBookingAction: (parent, {input}) => {
-     // const timeForBooking = input.from + "-" + input.to;
      const { tableID, from, to, amountOfChairs, dataOfBooking } = input;
      const timeForBooking = from + "-" + to;
       console.log("TIME FOR BOOKING: " + timeForBooking);
-   //   const bookingElement = createBookingAction({...input, timeForBooking: timeForBooking});
      
    const bookingElement = createBookingAction({
     tableID,
@@ -155,7 +155,7 @@ const resolvers = {
     to,
     amountOfChairs,
     dataOfBooking,
-    timeForBooking  // Assign the timeForBooking field here
+    timeForBooking 
   });
    console.log("OBJ: " + JSON.stringify(bookingElement));
       return bookingElement;
@@ -185,18 +185,37 @@ const resolvers = {
     currentNumber() {
       return currentNumber;
     },
-    getUser: (parent, { id }) => { 
+    getUser: (parent, { id}) => { 
       return users.find(user => user.id == id);
     },
-    getTableInfo: (parent, { id }) => { 
-      console.log( "tables "+JSON.stringify(tables))
+    getTableInfo: (parent, { id , date }) => { 
+  //    console.log( "tables "+JSON.stringify(tables))
+  console.log("TABLE FROM QUERY "+JSON.stringify(tables))
+  console.log("DATE" +date)
       const table = tables.find(table => table.id == id);
+
+      for(let i=0; i<tables.length; i++){
+        console.log("ITEM" +JSON.stringify(tables[i]))
+      }
       console.log( "table "+JSON.stringify(table))
+      //table {"id":1,"timeForBooking":[{"tableID":1,"from":"11:11","to":"11:11","amountOfChairs":1,"dataOfBooking":"23-1-2024","timeForBooking":"11:11-11:11"}],"amountOfChairs":4}
+//let dateTimeForBooking = table.timeForBooking.filter(item=>item.dataOfBooking==date)
+let dateTimeForBooking = table.timeForBooking.filter(item=>{
+console.log(item.dataOfBooking)
+console.log(date)
+  item.dataOfBooking==date
+  return item.dataOfBooking == date;
+}
+  )
+console.log("TIMEEEEEEEEEEEEEE"+JSON.stringify(dateTimeForBooking))
+//table.timeForBooking = dateTimeForBooking
       if (table) {
         return {
           id: table.id,
           amountOfChairs: table.amountOfChairs,
-          timeForBooking: table.timeForBooking
+        //  timeForBooking: table.timeForBooking
+  //     dateTimeForBooking: dateTimeForBookingx
+  timeForBooking: dateTimeForBooking
         };
       } else {
         return null; 
