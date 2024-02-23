@@ -83,7 +83,7 @@ type TableInfo {
   }
 
   type Subscription {
-    currentNumber: Int
+    currentNumber: String
   }
 
   type User {
@@ -251,15 +251,18 @@ async function startServer() {
     console.log(`🚀 Subscriptions ready at ws://localhost:${PORT}${server.graphqlPath}`);
   });
 
-  function incrementNumber() {
-    currentNumber++;
-   // console.log(currentNumber);
-    pubsub.publish('NUMBER_INCREMENTED', { currentNumber: currentNumber });
 
-    setTimeout(incrementNumber, 1000);
-  }
+function incrementNumber() {
+  const currentDate = new Date();
+  const formattedTime = `${currentDate.getHours()}:${currentDate.getMinutes()}:${currentDate.getSeconds()}`;
+  const formattedDate = `${currentDate.getFullYear()}-${currentDate.getMonth() + 1}-${currentDate.getDate()}`;
+  const currentDateTime = `${formattedTime}-${formattedDate}`;
 
-  incrementNumber();
+  pubsub.publish('NUMBER_INCREMENTED', { currentNumber: currentDateTime });
+
+  setTimeout(incrementNumber, 1000);
+}
+incrementNumber();
 }
 
 startServer().catch(error => console.error(error));
