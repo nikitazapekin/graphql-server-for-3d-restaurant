@@ -214,55 +214,8 @@ const createBookingAction = (input) => {
 
 
 
+
 /*
-const isAbleToBook = (checkTime, startTime, endTime) => {
-  const [checkHours, checkMinutes] = checkTime.split(":").map(Number);
-const [startHours, startMinutes] = startTime.split(":").map(Number);
-const [endHours, endMinutes] = endTime.split(":").map(Number);
-const checkTotalMinutes = checkHours * 60 + checkMinutes;
-const startTotalMinutes = startHours * 60 + startMinutes;
-const endTotalMinutes = endHours * 60 + endMinutes;
-if (checkTotalMinutes >= startTotalMinutes && checkTotalMinutes <= endTotalMinutes) {
-    console.log(`${checkTime} находится в промежутке между ${startTime} и ${endTime}.`);
-    return true
-  } else {
-    console.log(`${checkTime} не находится в промежутке между ${startTime} и ${endTime}.`);
-    return false
-}
-} */
-/*
-const isAbleToBook = (checkTime, startTime, endTime) => {
-  // Разбиваем строку checkTime на начальное и конечное время
-  const [checkStartTime, checkEndTime] = checkTime.split("-");
-
-  // Получаем часы и минуты начального и конечного времени промежутка
-  const [checkStartHours, checkStartMinutes] = checkStartTime.split(":").map(Number);
-  const [checkEndHours, checkEndMinutes] = checkEndTime.split(":").map(Number);
-
-  // Получаем часы и минуты начального и конечного времени бронирования
-  const [startHours, startMinutes] = startTime.split(":").map(Number);
-  const [endHours, endMinutes] = endTime.split(":").map(Number);
-
-  // Переводим все времена в минуты для удобства сравнения
-  const checkStartTotalMinutes = checkStartHours * 60 + checkStartMinutes;
-  const checkEndTotalMinutes = checkEndHours * 60 + checkEndMinutes;
-  const startTotalMinutes = startHours * 60 + startMinutes;
-  const endTotalMinutes = endHours * 60 + endMinutes;
-
-  // Проверяем, что начальное время промежутка находится после или равно startTime
-  // и конечное время промежутка находится до или равно endTime
-  if (checkStartTotalMinutes >= startTotalMinutes && checkEndTotalMinutes <= endTotalMinutes) {
-    console.log(`Промежуток ${checkTime} полностью содержится в промежутке между ${startTime} и ${endTime}.`);
-    return true;
-  } else {
-    console.log(`Промежуток ${checkTime} не содержится полностью в промежутке между ${startTime} и ${endTime}.`);
-    return false;
-  }
-}
-*/
-
-
-
 const isAbleToBook = (checkTime, startTime, endTime) => {
   // Разбиваем строку checkTime на начальное и конечное время
   const [checkStartTime, checkEndTime] = checkTime.split("-");
@@ -291,7 +244,63 @@ const isAbleToBook = (checkTime, startTime, endTime) => {
     return false;
   }
 }
+ */
 
+
+const isAbleToBookMinures = (checkTime, startTime, endTime) => {
+  const [checkHours, checkMinutes] = checkTime.split(":").map(Number);
+const [startHours, startMinutes] = startTime.split(":").map(Number);
+const [endHours, endMinutes] = endTime.split(":").map(Number);
+const checkTotalMinutes = checkHours * 60 + checkMinutes;
+const startTotalMinutes = startHours * 60 + startMinutes;
+const endTotalMinutes = endHours * 60 + endMinutes;
+if (checkTotalMinutes >= startTotalMinutes && checkTotalMinutes <= endTotalMinutes) {
+    console.log(`${checkTime} находится в промежутке между ${startTime} и ${endTime}.`);
+    return true
+} else {
+    console.log(`${checkTime} не находится в промежутке между ${startTime} и ${endTime}.`);
+    return false
+}
+}
+
+const isAbleToBook = (checkTime, startTime, endTime) => {
+// Разбиваем строку checkTime на начальное и конечное время
+const [checkStartTime, checkEndTime] = checkTime.split("-");
+
+// Получаем часы и минуты начального и конечного времени промежутка
+const [checkStartHours, checkStartMinutes] = checkStartTime.split(":").map(Number);
+const [checkEndHours, checkEndMinutes] = checkEndTime.split(":").map(Number);
+
+// Получаем часы и минуты начального и конечного времени бронирования
+const [startHours, startMinutes] = startTime.split(":").map(Number);
+const [endHours, endMinutes] = endTime.split(":").map(Number);
+
+// Переводим все времена в минуты для удобства сравнения
+const checkStartTotalMinutes = checkStartHours * 60 + checkStartMinutes;
+const checkEndTotalMinutes = checkEndHours * 60 + checkEndMinutes;
+const startTotalMinutes = startHours * 60 + startMinutes;
+const endTotalMinutes = endHours * 60 + endMinutes;
+console.log("=======================================================")
+console.log(checkStartTime, startTime, endTime)
+console.log( isAbleToBookMinures(checkStartTime, startTime, endTime))
+
+ console.log( isAbleToBookMinures(checkEndTime, startTime, endTime))
+console.log("=======================================================")
+
+if(checkStartTotalMinutes<startTotalMinutes &&  checkEndTotalMinutes> endTotalMinutes) {
+  return true
+}
+if(isAbleToBookMinures(checkStartTime, startTime, endTime) || isAbleToBookMinures(checkEndTime, startTime, endTime) ) {
+    return true
+}
+if (checkStartTotalMinutes >= startTotalMinutes && checkEndTotalMinutes <= endTotalMinutes) {
+  //console.log(`Промежуток ${checkTime} полностью содержится в промежутке между ${startTime} и ${endTime}.`);
+  return true;
+} else {
+ // console.log(`Промежуток ${checkTime} не содержится полностью в промежутке между ${startTime} и ${endTime}.`);
+  return false;
+}
+}
 
 
 const resolvers = {
@@ -329,11 +338,11 @@ const resolvers = {
         console.log("id" +tables[i].id+":" +"tableID" +bookingElement.tableID)
         console.log("TABLE" +JSON.stringify(tables[i]))
         if (tables[i].id ==bookingElement.tableID) {
-
-
+console.log("FOUNDDDDD")
+console.log(JSON.stringify(tables[i]))
           let flag = true
           let bookedTime = ""
-for(let j=0; j< tables[i].timeForBooking.length; i++){
+for(let j=0; j< tables[i].timeForBooking.length; j++){
   console.log("ELEMENT"+JSON.stringify(tables[i].timeForBooking[j]))
 console.log(timeForBooking,  tables[i].timeForBooking[j].from, tables[i].timeForBooking[j].to )
   if(isAbleToBook(timeForBooking, tables[i].timeForBooking[j].from, tables[i].timeForBooking[j].to )) //true =не находится false =  находится
