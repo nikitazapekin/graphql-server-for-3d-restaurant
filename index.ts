@@ -214,39 +214,6 @@ const createBookingAction = (input) => {
 
 
 
-
-/*
-const isAbleToBook = (checkTime, startTime, endTime) => {
-  // Разбиваем строку checkTime на начальное и конечное время
-  const [checkStartTime, checkEndTime] = checkTime.split("-");
-
-  // Проверяем каждое время в промежутке checkTime
-  const isTimeInRange = (time) => {
-    const [hours, minutes] = time.split(":").map(Number);
-    const totalMinutes = hours * 60 + minutes;
-    return totalMinutes >= startTotalMinutes && totalMinutes <= endTotalMinutes;
-  };
-
-  // Получаем часы и минуты начального и конечного времени бронирования
-  const [startHours, startMinutes] = startTime.split(":").map(Number);
-  const [endHours, endMinutes] = endTime.split(":").map(Number);
-
-  // Переводим время начала и конца в минуты для удобства сравнения
-  const startTotalMinutes = startHours * 60 + startMinutes;
-  const endTotalMinutes = endHours * 60 + endMinutes;
-
-  // Проверяем, что начальное и конечное время промежутка checkTime находятся в заданном интервале
-  if (isTimeInRange(checkStartTime) && isTimeInRange(checkEndTime)) {
-    console.log(`Промежуток ${checkTime} полностью содержится в промежутке между ${startTime} и ${endTime}.`);
-    return true;
-  } else {
-    console.log(`Промежуток ${checkTime} не содержится полностью в промежутке между ${startTime} и ${endTime}.`);
-    return false;
-  }
-}
- */
-
-
 const isAbleToBookMinures = (checkTime, startTime, endTime) => {
   const [checkHours, checkMinutes] = checkTime.split(":").map(Number);
 const [startHours, startMinutes] = startTime.split(":").map(Number);
@@ -264,18 +231,13 @@ if (checkTotalMinutes >= startTotalMinutes && checkTotalMinutes <= endTotalMinut
 }
 
 const isAbleToBook = (checkTime, startTime, endTime) => {
-// Разбиваем строку checkTime на начальное и конечное время
 const [checkStartTime, checkEndTime] = checkTime.split("-");
-
-// Получаем часы и минуты начального и конечного времени промежутка
 const [checkStartHours, checkStartMinutes] = checkStartTime.split(":").map(Number);
 const [checkEndHours, checkEndMinutes] = checkEndTime.split(":").map(Number);
 
-// Получаем часы и минуты начального и конечного времени бронирования
 const [startHours, startMinutes] = startTime.split(":").map(Number);
 const [endHours, endMinutes] = endTime.split(":").map(Number);
 
-// Переводим все времена в минуты для удобства сравнения
 const checkStartTotalMinutes = checkStartHours * 60 + checkStartMinutes;
 const checkEndTotalMinutes = checkEndHours * 60 + checkEndMinutes;
 const startTotalMinutes = startHours * 60 + startMinutes;
@@ -294,10 +256,8 @@ if(isAbleToBookMinures(checkStartTime, startTime, endTime) || isAbleToBookMinure
     return true
 }
 if (checkStartTotalMinutes >= startTotalMinutes && checkEndTotalMinutes <= endTotalMinutes) {
-  //console.log(`Промежуток ${checkTime} полностью содержится в промежутке между ${startTime} и ${endTime}.`);
   return true;
 } else {
- // console.log(`Промежуток ${checkTime} не содержится полностью в промежутке между ${startTime} и ${endTime}.`);
   return false;
 }
 }
@@ -350,20 +310,12 @@ console.log(timeForBooking,  tables[i].timeForBooking[j].from, tables[i].timeFor
     flag=false
     console.log("CANNOR" + JSON.stringify(tables[i].timeForBooking[j]) )
     bookedTime= tables[i].timeForBooking[j].from+"-" +tables[i].timeForBooking[j].to 
-
-  /*   flag=false
-     console.log("CANNOR" + JSON.stringify(tables[i].timeForBooking[j]) )
-     bookedTime= tables[i].timeForBooking[j].from+"-" +tables[i].timeForBooking[j].to  */
   } 
   else {
     console.log("НЕ Содержится", timeForBooking,  tables[i].timeForBooking[j].from, tables[i].timeForBooking[j].to )
-  //  continue
    }
 } 
 if(flag) {
-//  tables[i].timeForBooking.push(bookingElement)
-//bookingElement.tableID
-
 tables[Number(bookingElement.tableID)-1].timeForBooking.push(bookingElement)
 }
  else {
@@ -373,7 +325,6 @@ tables[Number(bookingElement.tableID)-1].timeForBooking.push(bookingElement)
         }
       }
  console.log(JSON.stringify(tables))
-     // return bookingElement;e
      return { bookingElement, errorMessage };
     }
   }, 
