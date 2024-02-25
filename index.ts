@@ -41,19 +41,19 @@ const tables = [
       timeForBooking: [] as Table[],
       amountOfChairs: 2
   },
- {
-      id: 6,
+  {
+    id: 6,
       timeForBooking: [] as Table[],
       amountOfChairs: 2
   },
- {
-      id: 7,
-      timeForBooking: [] as Table[],
+  {
+    id: 7,
+    timeForBooking: [] as Table[],
       amountOfChairs: 2
   },
  {
-      id: 8,
-      timeForBooking: [] as Table[],
+   id: 8,
+   timeForBooking: [] as Table[],
       amountOfChairs: 2
   }
 ];
@@ -61,6 +61,7 @@ const tables = [
 const PORT = 5000;
 const users = [{ id: 1, username: "Vasya", age: 25 }];
 
+//getInfornationAboutAbilityOfBooking(date: String!): [TableInfo]
 const typeDefs = `
 type TableArray {
   tableID: Int
@@ -76,12 +77,18 @@ type TableInfo {
   amountOfChairs: Int
   timeForBooking: [TableArray]
 }
-
+type TablesArray {
+  id: Int
+  amountOfChairs: Int
+  timeForBooking: [TableArray]
+}
 type Query {
   currentNumber: Int
   getUser(id: ID!): User
   getTableInfo(id: ID!, date: String!):  TableInfo
-  getCalendarInfoAboutTables(date: String!): TableInfo
+  getCalendarInfoAboutTables(date: String!): [TablesArray]
+
+  getInfornationAboutAbilityOfBooking(date: String!): [Boolean]
 }
 
 type User {
@@ -131,70 +138,7 @@ type Subscription {
   tables: [TableInfo]
 }
 `;
-/*
-const typeDefs = `
-type TableArray {
-  tableID: Int
-  from: String
-  to: String
-  amountOfChairs: Int
-  timeForBooking: String
-  dataOfBooking: String
-}
-type TableInfo {
-  id: Int
-  amountOfChairs: Int
-  timeForBooking: [TableArray]
- 
-}
-  type Query {
-    currentNumber: Int
-    getUser(id: ID!): User
-    getTableInfo(id: ID!, date: String!):  TableInfo
-    getCalendarInfoAboutTables(date: String!): TableInfo
-  }
 
-
-  type User {
-    id: ID
-    username: String
-    password: String 
-  }
-
-  type BookingAction {
-    tableID: Int
-    from: String
-    to: String
-    amountOfChairs: Int
-    dataOfBooking: String
-  }
-
-  input BookingActionObject {
-    tableID: Int
-    from: String
-    to: String
-    amountOfChairs: Int
-    dataOfBooking: String
-  }
-  input UserInput {
-    id: ID
-    username: String!
-    password: String!
-  }
-  type Mutation {
-    createUser(input: UserInput): User
-    createBookingAction(input: BookingActionObject): BookingAction
-  }
-
-  type MutationBookingAction {
-    createBookingAction(input: BookingActionObject): BookingAction
-  }
-
-  type Subscription {
-    currentNumber: String
-    tables: [TableInfo]
-  }
-`; */
  
 const pubsub = new PubSub();
 let currentNumber = 0;
@@ -294,37 +238,45 @@ const resolvers = {
  let errorMessage = ""
       const bookingElement = createBookingAction({...input, timeForBooking: timeForBooking});
       for (let i=0; i< tables.length; i++){
-
-        console.log("id" +tables[i].id+":" +"tableID" +bookingElement.tableID)
-        console.log("TABLE" +JSON.stringify(tables[i]))
         if (tables[i].id ==bookingElement.tableID) {
-console.log("FOUNDDDDD")
-console.log(JSON.stringify(tables[i]))
           let flag = true
           let bookedTime = ""
-for(let j=0; j< tables[i].timeForBooking.length; j++){
-  console.log("ELEMENT"+JSON.stringify(tables[i].timeForBooking[j]))
+            for(let j=0; j< tables[i].timeForBooking.length; j++){
+              console.log("ELEMENT"+JSON.stringify(tables[i].timeForBooking[j]))
 console.log(timeForBooking,  tables[i].timeForBooking[j].from, tables[i].timeForBooking[j].to )
-  if(isAbleToBook(timeForBooking, tables[i].timeForBooking[j].from, tables[i].timeForBooking[j].to )) //true =не находится false =  находится
+  if(isAbleToBook(timeForBooking, tables[i].timeForBooking[j].from, tables[i].timeForBooking[j].to ) && tables[i].timeForBooking[j].dataOfBooking==input.dataOfBooking) //true =не находится false =  находится
    {
     flag=false
     console.log("CANNOR" + JSON.stringify(tables[i].timeForBooking[j]) )
     bookedTime= tables[i].timeForBooking[j].from+"-" +tables[i].timeForBooking[j].to 
   } 
+  else if( tables[i].timeForBooking[j].from=="00:00" &&  tables[i].timeForBooking[j].to=="00:00"){
+    flag=false
+  }
   else {
     console.log("НЕ Содержится", timeForBooking,  tables[i].timeForBooking[j].from, tables[i].timeForBooking[j].to )
    }
 } 
-if(flag) {
-tables[Number(bookingElement.tableID)-1].timeForBooking.push(bookingElement)
+if((tables[i].timeForBooking.length==0 && input.from=="00:00" &&  input.to=="00:00")) {
+  tables[Number(bookingElement.tableID)-1].timeForBooking.push(bookingElement)
+} 
+else if((tables[i].timeForBooking.length!=0 && input.from=="00:00" &&  input.to=="00:00")) {
+flag=false
+errorMessage="You cannot reserve this table for the whole day as it is already booked for some time"
+bookedTime="00:00-00:00"
+} 
+else{
+
+  if(flag) {
+    tables[Number(bookingElement.tableID)-1].timeForBooking.push(bookingElement)
 }
  else {
-  errorMessage = `You cannot book this table as it is already booked for ${bookedTime}`
+  errorMessage = `You cannot book this table as it is already booked for typed time`
   console.log( "YOU CANT BOOK THIS TABLE BECAUUSE" +bookedTime)
- }
+}
+}
         }
       }
- console.log(JSON.stringify(tables))
      return { bookingElement, errorMessage };
     }
   }, 
@@ -355,6 +307,8 @@ let dateTimeForBooking = table.timeForBooking.filter(item=>{
     
 
     getCalendarInfoAboutTables: (parent, {date})=> {
+
+      console.log("TABLEEEEEEEEEEEEEES" +JSON.stringify(tables))
 console.log(date)
 const tablesCopy = tables
 for(let i=0; i<tablesCopy.length; i++) {
@@ -365,11 +319,38 @@ let dateTimeForBooking = tablesCopy[i].timeForBooking.filter(item=>{
 }
   )
 tablesCopy[i].timeForBooking = dateTimeForBooking
-/*
-*/
-}
 
-console.log("table copy" +JSON.stringify(tablesCopy))
+}
+    }, 
+    getInfornationAboutAbilityOfBooking: (parent, {date }) => {
+  const tablesCopy = JSON.parse(JSON.stringify(tables));
+
+
+    
+    for(let i=0; i<tablesCopy.length; i++) {
+      const currentDateBookingElements = tablesCopy[i].timeForBooking.filter((item)=> {
+        if(item.dataOfBooking==date){
+          return item
+        }
+      })
+
+      tablesCopy[i].timeForBooking=currentDateBookingElements
+    }
+    const arrayOfAbleToBookTables = []
+    for(let i=0; i<tablesCopy.length; i++) {
+      console.log("ELEMENT" + JSON.stringify(tablesCopy[i]))
+      let isBooked = false
+  for(let j=0; j< tablesCopy[i].timeForBooking.length; j++) {
+if(tablesCopy[i].timeForBooking[j].from=="00:00" && tablesCopy[i].timeForBooking[j].to=="00:00") {
+isBooked=true
+}
+  }
+  arrayOfAbleToBookTables.push(isBooked)
+}
+ 
+
+//const arrayOfAbleToBookTables = []
+return  arrayOfAbleToBookTables
     }
   },
   Subscription: {
