@@ -319,8 +319,11 @@ let dateTimeForBooking = tablesCopy[i].timeForBooking.filter(item=>{
 }
   )
 tablesCopy[i].timeForBooking = dateTimeForBooking
-
+/*
+*/
 }
+
+console.log("table copy" +JSON.stringify(tablesCopy))
     }, 
     getInfornationAboutAbilityOfBooking: (parent, {date }) => {
   const tablesCopy = JSON.parse(JSON.stringify(tables));
@@ -397,11 +400,24 @@ const formattedDate = `${currentDate.getDate()}-${currentDate.getMonth() + 1}-${
   /*c
   */
   const formatttedDate = `${currentDate.getDate()}-${currentDate.getMonth() }-${currentDate.getFullYear()}`;
-// console.log("TABLE" +JSON.stringify(tables))
+ //console.log("TABLE" +JSON.stringify(tables))
  //console.log("FORMATTED" +formattedDate)
- const tablesCopy = tables.map(table => ({...table, timeForBooking: table.timeForBooking.filter(item => item.dataOfBooking ===formatttedDate)}));
-  pubsub.publish('NUMBER_INCREMENTED', { currentNumber: currentDateTime });
-//console.log(JSON.stringify(tablesCopy))
+let tablesCopy = JSON.parse(JSON.stringify(tables));
+/*tablesCopy = tables.map(table => ({...table, timeForBooking: table.timeForBooking.filter(item => item.dataOfBooking ===formatttedDate)}));
+console.log(JSON.stringify(tablesCopy)) */
+
+
+
+for(let i=0; i<tablesCopy.length; i++) {
+  const currentDateBookingElements = tablesCopy[i].timeForBooking.filter((item)=> {
+    if(item.dataOfBooking==formattedDate){
+      return item
+    }
+  })
+
+  tablesCopy[i].timeForBooking=currentDateBookingElements
+}
+pubsub.publish('NUMBER_INCREMENTED', { currentNumber: currentDateTime });
 pubsub.publish('CURRENT_TABLES', { tables: tablesCopy });
 
   setTimeout(incrementNumber, 1000);
