@@ -10,51 +10,51 @@ const { SubscriptionServer } = require('subscriptions-transport-ws');
 type Table = {
   tableID: number
   from: string,
-  to: string, 
+  to: string,
   amountOfChairs: number
   timeForBooking: string
-dataOfBooking:  string
+  dataOfBooking: string
 };
 const tables = [
- {
-      id: 1,
-      timeForBooking: [] as Table[],
-      amountOfChairs: 4
+  {
+    id: 1,
+    timeForBooking: [] as Table[],
+    amountOfChairs: 4
   },
- {
-      id: 2,
-      timeForBooking: [] as Table[],
-      amountOfChairs: 4
+  {
+    id: 2,
+    timeForBooking: [] as Table[],
+    amountOfChairs: 4
   },
- {
-      id: 3,
-      timeForBooking: [] as Table[],
-      amountOfChairs: 2
+  {
+    id: 3,
+    timeForBooking: [] as Table[],
+    amountOfChairs: 2
   },
- {
-      id: 4,
-      timeForBooking: [] as Table[],
-      amountOfChairs: 2
+  {
+    id: 4,
+    timeForBooking: [] as Table[],
+    amountOfChairs: 2
   },
-   {
-      id: 5,
-      timeForBooking: [] as Table[],
-      amountOfChairs: 2
+  {
+    id: 5,
+    timeForBooking: [] as Table[],
+    amountOfChairs: 2
   },
   {
     id: 6,
-      timeForBooking: [] as Table[],
-      amountOfChairs: 2
+    timeForBooking: [] as Table[],
+    amountOfChairs: 2
   },
   {
     id: 7,
     timeForBooking: [] as Table[],
-      amountOfChairs: 2
+    amountOfChairs: 2
   },
- {
-   id: 8,
-   timeForBooking: [] as Table[],
-      amountOfChairs: 2
+  {
+    id: 8,
+    timeForBooking: [] as Table[],
+    amountOfChairs: 2
   }
 ];
 
@@ -139,7 +139,7 @@ type Subscription {
 }
 `;
 
- 
+
 const pubsub = new PubSub();
 let currentNumber = 0;
 const createUser = (input) => {
@@ -160,69 +160,69 @@ const createBookingAction = (input) => {
 
 const isAbleToBookMinures = (checkTime, startTime, endTime) => {
   const [checkHours, checkMinutes] = checkTime.split(":").map(Number);
-const [startHours, startMinutes] = startTime.split(":").map(Number);
-const [endHours, endMinutes] = endTime.split(":").map(Number);
-const checkTotalMinutes = checkHours * 60 + checkMinutes;
-const startTotalMinutes = startHours * 60 + startMinutes;
-const endTotalMinutes = endHours * 60 + endMinutes;
-if (checkTotalMinutes >= startTotalMinutes && checkTotalMinutes <= endTotalMinutes) {
+  const [startHours, startMinutes] = startTime.split(":").map(Number);
+  const [endHours, endMinutes] = endTime.split(":").map(Number);
+  const checkTotalMinutes = checkHours * 60 + checkMinutes;
+  const startTotalMinutes = startHours * 60 + startMinutes;
+  const endTotalMinutes = endHours * 60 + endMinutes;
+  if (checkTotalMinutes >= startTotalMinutes && checkTotalMinutes <= endTotalMinutes) {
     console.log(`${checkTime} находится в промежутке между ${startTime} и ${endTime}.`);
     return true
-} else {
+  } else {
     console.log(`${checkTime} не находится в промежутке между ${startTime} и ${endTime}.`);
     return false
-}
+  }
 }
 
 const isAbleToBook = (checkTime, startTime, endTime) => {
-const [checkStartTime, checkEndTime] = checkTime.split("-");
-const [checkStartHours, checkStartMinutes] = checkStartTime.split(":").map(Number);
-const [checkEndHours, checkEndMinutes] = checkEndTime.split(":").map(Number);
+  const [checkStartTime, checkEndTime] = checkTime.split("-");
+  const [checkStartHours, checkStartMinutes] = checkStartTime.split(":").map(Number);
+  const [checkEndHours, checkEndMinutes] = checkEndTime.split(":").map(Number);
 
-const [startHours, startMinutes] = startTime.split(":").map(Number);
-const [endHours, endMinutes] = endTime.split(":").map(Number);
+  const [startHours, startMinutes] = startTime.split(":").map(Number);
+  const [endHours, endMinutes] = endTime.split(":").map(Number);
 
-const checkStartTotalMinutes = checkStartHours * 60 + checkStartMinutes;
-const checkEndTotalMinutes = checkEndHours * 60 + checkEndMinutes;
-const startTotalMinutes = startHours * 60 + startMinutes;
-const endTotalMinutes = endHours * 60 + endMinutes;
-console.log("=======================================================")
-console.log(checkStartTime, startTime, endTime)
-console.log( isAbleToBookMinures(checkStartTime, startTime, endTime))
+  const checkStartTotalMinutes = checkStartHours * 60 + checkStartMinutes;
+  const checkEndTotalMinutes = checkEndHours * 60 + checkEndMinutes;
+  const startTotalMinutes = startHours * 60 + startMinutes;
+  const endTotalMinutes = endHours * 60 + endMinutes;
+  console.log("=======================================================")
+  console.log(checkStartTime, startTime, endTime)
+  console.log(isAbleToBookMinures(checkStartTime, startTime, endTime))
 
- console.log( isAbleToBookMinures(checkEndTime, startTime, endTime))
-console.log("=======================================================")
+  console.log(isAbleToBookMinures(checkEndTime, startTime, endTime))
+  console.log("=======================================================")
 
-if(checkStartTotalMinutes<startTotalMinutes &&  checkEndTotalMinutes> endTotalMinutes) {
-  return true
-}
-if(isAbleToBookMinures(checkStartTime, startTime, endTime) || isAbleToBookMinures(checkEndTime, startTime, endTime) ) {
+  if (checkStartTotalMinutes < startTotalMinutes && checkEndTotalMinutes > endTotalMinutes) {
     return true
-}
-if (checkStartTotalMinutes >= startTotalMinutes && checkEndTotalMinutes <= endTotalMinutes) {
-  return true;
-} else {
-  return false;
-}
+  }
+  if (isAbleToBookMinures(checkStartTime, startTime, endTime) || isAbleToBookMinures(checkEndTime, startTime, endTime)) {
+    return true
+  }
+  if (checkStartTotalMinutes >= startTotalMinutes && checkEndTotalMinutes <= endTotalMinutes) {
+    return true;
+  } else {
+    return false;
+  }
 }
 
 
 const resolvers = {
   MutationBookingAction: {
-    createBookingAction: (parent, {input}) => {
-     const { tableID, from, to, amountOfChairs, dataOfBooking } = input;
-     const timeForBooking = from + "-" + to;
+    createBookingAction: (parent, { input }) => {
+      const { tableID, from, to, amountOfChairs, dataOfBooking } = input;
+      const timeForBooking = from + "-" + to;
       console.log("TIME FOR BOOKING: " + timeForBooking);
-     
-   const bookingElement = createBookingAction({
-    tableID,
-    from,
-    to,
-    amountOfChairs,
-    dataOfBooking,
-    timeForBooking 
-  });
-  
+
+      const bookingElement = createBookingAction({
+        tableID,
+        from,
+        to,
+        amountOfChairs,
+        dataOfBooking,
+        timeForBooking
+      });
+
       return bookingElement;
     }
   },
@@ -233,134 +233,202 @@ const resolvers = {
       users.push(user);
       return user;
     },
-    createBookingAction: (parent, {input}) => {
+
+
+
+
+
+
+
+
+
+/*
+    createBookingAction: (parent, { input }) => {
       const timeForBooking = input.from + "-" + input.to;
- let errorMessage = ""
-      const bookingElement = createBookingAction({...input, timeForBooking: timeForBooking});
-      for (let i=0; i< tables.length; i++){
-        if (tables[i].id ==bookingElement.tableID) {
+      let errorMessage = ""
+      const bookingElement = createBookingAction({ ...input, timeForBooking: timeForBooking });
+
+
+const tablesCopy = JSON.parse(JSON.stringify(tables))
+      console.log("ALLL"+JSON.stringify(tablesCopy))
+
+      console.log("DESIRED TIMe" +timeForBooking, input.dataOfBooking)
+      for (let i = 0; i < tablesCopy.length; i++) {
+        if (tablesCopy[i].id == bookingElement.tableID) {
           let flag = true
           let bookedTime = ""
-            for(let j=0; j< tables[i].timeForBooking.length; j++){
-              console.log("ELEMENT"+JSON.stringify(tables[i].timeForBooking[j]))
-console.log(timeForBooking,  tables[i].timeForBooking[j].from, tables[i].timeForBooking[j].to )
-  if(isAbleToBook(timeForBooking, tables[i].timeForBooking[j].from, tables[i].timeForBooking[j].to ) && tables[i].timeForBooking[j].dataOfBooking==input.dataOfBooking) //true =не находится false =  находится
-   {
-    flag=false
-    console.log("CANNOR" + JSON.stringify(tables[i].timeForBooking[j]) )
-    bookedTime= tables[i].timeForBooking[j].from+"-" +tables[i].timeForBooking[j].to 
-  } 
-  else if( tables[i].timeForBooking[j].from=="00:00" &&  tables[i].timeForBooking[j].to=="00:00"){
-    flag=false
-  }
-  else {
-    console.log("НЕ Содержится", timeForBooking,  tables[i].timeForBooking[j].from, tables[i].timeForBooking[j].to )
-   }
-} 
-if((tables[i].timeForBooking.length==0 && input.from=="00:00" &&  input.to=="00:00")) {
-  tables[Number(bookingElement.tableID)-1].timeForBooking.push(bookingElement)
-} 
-else if((tables[i].timeForBooking.length!=0 && input.from=="00:00" &&  input.to=="00:00")) {
-flag=false
-errorMessage="You cannot reserve this table for the whole day as it is already booked for some time"
-bookedTime="00:00-00:00"
-} 
-else{
+          for (let j = 0; j < tablesCopy[i].timeForBooking.length; j++) {
+            console.log("ELEMENT" + JSON.stringify(tablesCopy[i].timeForBooking[j]))
+            console.log(timeForBooking, tablesCopy[i].timeForBooking[j].from, tablesCopy[i].timeForBooking[j].to)
+            if (isAbleToBook(timeForBooking, tablesCopy[i].timeForBooking[j].from, tablesCopy[i].timeForBooking[j].to) && tablesCopy[i].timeForBooking[j].dataOfBooking == input.dataOfBooking) //true =не находится false =  находится
+            {
+              flag = false
+              console.log("CANNOR" + JSON.stringify(tablesCopy[i].timeForBooking[j]))
+              bookedTime = tablesCopy[i].timeForBooking[j].from + "-" + tablesCopy[i].timeForBooking[j].to
+            }
+            else if (tablesCopy[i].timeForBooking[j].from == "00:00" && tablesCopy[i].timeForBooking[j].to == "00:00") {
+              flag = false
+            }
+            else {
+              console.log("НЕ Содержится", timeForBooking, tablesCopy[i].timeForBooking[j].from, tablesCopy[i].timeForBooking[j].to)
+            }
+          }
+          if ((tablesCopy[i].timeForBooking.length == 0 && input.from == "00:00" && input.to == "00:00")) {
+            tablesCopy[Number(bookingElement.tableID) - 1].timeForBooking.push(bookingElement)
+          }
+          else if ((tables[i].timeForBooking.length != 0 && input.from == "00:00" && input.to == "00:00")) {
+            flag = false
+            errorMessage = "You cannot reserve this table for the whole day as it is already booked for some time"
+            bookedTime = "00:00-00:00"
+          }
+          else {
 
-  if(flag) {
-    tables[Number(bookingElement.tableID)-1].timeForBooking.push(bookingElement)
-}
- else {
-  errorMessage = `You cannot book this table as it is already booked for typed time`
-  console.log( "YOU CANT BOOK THIS TABLE BECAUUSE" +bookedTime)
-}
-}
+            if (flag) {
+              tablesCopy[Number(bookingElement.tableID) - 1].timeForBooking.push(bookingElement)
+            }
+            else {
+              errorMessage = `You cannot book this table as it is already booked for typed time`
+              console.log("YOU CANT BOOK THIS TABLE BECAUUSE" + bookedTime)
+            }
+          }
         }
       }
-     return { bookingElement, errorMessage };
-    }
-  }, 
+      return { bookingElement, errorMessage };
+    } */
+    createBookingAction: (parent, { input }) => {
+      const timeForBooking = input.from + "-" + input.to;
+      let errorMessage = ""
+      const bookingElement = createBookingAction({ ...input, timeForBooking: timeForBooking });
+
+
+
+      console.log("ALLL"+JSON.stringify(tables))
+
+      console.log("DESIRED TIMe" +timeForBooking, input.dataOfBooking)
+      for (let i = 0; i < tables.length; i++) {
+        if (tables[i].id == bookingElement.tableID) {
+          let flag = true
+          let bookedTime = ""
+          for (let j = 0; j < tables[i].timeForBooking.length; j++) {
+            console.log("ELEMENT" + JSON.stringify(tables[i].timeForBooking[j]))
+            console.log(timeForBooking, tables[i].timeForBooking[j].from, tables[i].timeForBooking[j].to)
+            if (isAbleToBook(timeForBooking, tables[i].timeForBooking[j].from, tables[i].timeForBooking[j].to) && tables[i].timeForBooking[j].dataOfBooking == input.dataOfBooking) //true =не находится false =  находится
+            {
+              flag = false
+              console.log("CANNOR" + JSON.stringify(tables[i].timeForBooking[j]))
+              bookedTime = tables[i].timeForBooking[j].from + "-" + tables[i].timeForBooking[j].to
+            }
+            else if (tables[i].timeForBooking[j].from == "00:00" && tables[i].timeForBooking[j].to == "00:00") {
+              flag = false
+            }
+            else {
+              console.log("НЕ Содержится", timeForBooking, tables[i].timeForBooking[j].from, tables[i].timeForBooking[j].to)
+            }
+          }
+          if ((tables[i].timeForBooking.length == 0 && input.from == "00:00" && input.to == "00:00")) {
+            tables[Number(bookingElement.tableID) - 1].timeForBooking.push(bookingElement)
+          }
+          else if ((tables[i].timeForBooking.length != 0 && input.from == "00:00" && input.to == "00:00")) {
+            flag = false
+            errorMessage = "You cannot reserve this table for the whole day as it is already booked for some time"
+            bookedTime = "00:00-00:00"
+          }
+          else {
+
+            if (flag) {
+              tables[Number(bookingElement.tableID) - 1].timeForBooking.push(bookingElement)
+            }
+            else {
+              errorMessage = `You cannot book this table as it is already booked for typed time`
+              console.log("YOU CANT BOOK THIS TABLE BECAUUSE" + bookedTime)
+            }
+          }
+        }
+      }
+      return { bookingElement, errorMessage };
+    } 
+  },
   Query: {
     currentNumber() {
       return currentNumber;
     },
-    getUser: (parent, { id}) => { 
+    getUser: (parent, { id }) => {
       return users.find(user => user.id == id);
     },
-    getTableInfo: (parent, { id , date }) => { 
+    getTableInfo: (parent, { id, date }) => {
       const table = tables.find(table => table.id == id);
-let dateTimeForBooking = table.timeForBooking.filter(item=>{
-  item.dataOfBooking==date
-  return item.dataOfBooking == date;
-}
-  )
+      let dateTimeForBooking = table.timeForBooking.filter(item => {
+        item.dataOfBooking == date
+        return item.dataOfBooking == date;
+      }
+      )
       if (table) {
         return {
           id: table.id,
           amountOfChairs: table.amountOfChairs,
-  timeForBooking: dateTimeForBooking
+          timeForBooking: dateTimeForBooking
         };
       } else {
-        return null; 
+        return null;
       }
     },
-    
-
-    getCalendarInfoAboutTables: (parent, {date})=> {
-
-      console.log("TABLEEEEEEEEEEEEEES" +JSON.stringify(tables))
-console.log(date)
-const tablesCopy = tables
-for(let i=0; i<tablesCopy.length; i++) {
-console.log(JSON.stringify(tablesCopy[i]))
-let dateTimeForBooking = tablesCopy[i].timeForBooking.filter(item=>{
-  item.dataOfBooking==date
-  return item.dataOfBooking == date;
-}
-  )
-tablesCopy[i].timeForBooking = dateTimeForBooking
-/*
-*/
-}
-
-console.log("table copy" +JSON.stringify(tablesCopy))
-    }, 
-    getInfornationAboutAbilityOfBooking: (parent, {date }) => {
-  const tablesCopy = JSON.parse(JSON.stringify(tables));
 
 
-    
-    for(let i=0; i<tablesCopy.length; i++) {
-      const currentDateBookingElements = tablesCopy[i].timeForBooking.filter((item)=> {
-        if(item.dataOfBooking==date){
-          return item
+    getCalendarInfoAboutTables: (parent, { date }) => {
+
+      console.log("TABLEEEEEEEEEEEEEES" + JSON.stringify(tables))
+      console.log(date)
+      const tablesCopy = tables
+      for (let i = 0; i < tablesCopy.length; i++) {
+        console.log(JSON.stringify(tablesCopy[i]))
+        let dateTimeForBooking = tablesCopy[i].timeForBooking.filter(item => {
+          item.dataOfBooking == date
+          return item.dataOfBooking == date;
         }
-      })
+        )
+        tablesCopy[i].timeForBooking = dateTimeForBooking
+        /*
+        */
+      }
 
-      tablesCopy[i].timeForBooking=currentDateBookingElements
-    }
-    const arrayOfAbleToBookTables = []
-    for(let i=0; i<tablesCopy.length; i++) {
-      console.log("ELEMENT" + JSON.stringify(tablesCopy[i]))
-      let isBooked = false
-  for(let j=0; j< tablesCopy[i].timeForBooking.length; j++) {
-if(tablesCopy[i].timeForBooking[j].from=="00:00" && tablesCopy[i].timeForBooking[j].to=="00:00") {
-isBooked=true
-}
-  }
-  arrayOfAbleToBookTables.push(isBooked)
-}
- 
+      console.log("table copy" + JSON.stringify(tablesCopy))
+    },
+    getInfornationAboutAbilityOfBooking: (parent, { date }) => {
+      const tablesCopy = JSON.parse(JSON.stringify(tables));
 
-//const arrayOfAbleToBookTables = []
-return  arrayOfAbleToBookTables
+
+
+      for (let i = 0; i < tablesCopy.length; i++) {
+        const currentDateBookingElements = tablesCopy[i].timeForBooking.filter((item) => {
+          if (item.dataOfBooking == date) {
+            return item
+          }
+        })
+
+        tablesCopy[i].timeForBooking = currentDateBookingElements
+      }
+      const arrayOfAbleToBookTables = []
+      for (let i = 0; i < tablesCopy.length; i++) {
+        console.log("ELEMENT" + JSON.stringify(tablesCopy[i]))
+        let isBooked = false
+        for (let j = 0; j < tablesCopy[i].timeForBooking.length; j++) {
+          if (tablesCopy[i].timeForBooking[j].from == "00:00" && tablesCopy[i].timeForBooking[j].to == "00:00") {
+            isBooked = true
+          }
+        }
+        arrayOfAbleToBookTables.push(isBooked)
+      }
+
+
+      //const arrayOfAbleToBookTables = []ч
+      return arrayOfAbleToBookTables
     }
   },
   Subscription: {
     currentNumber: {
       subscribe: () => pubsub.asyncIterator(['NUMBER_INCREMENTED']),
     },
-   tables: {
+    tables: {
       subscribe: () => pubsub.asyncIterator(['CURRENT_TABLES']),
     },
   },
@@ -388,41 +456,38 @@ async function startServer() {
   });
 
 
-function incrementNumber() {
-  const currentDate = new Date();
-  const formattedTime = `${currentDate.getHours()}:${currentDate.getMinutes()}:${currentDate.getSeconds()}`;
-//  const formattedDate = `${currentDate.getFullYear()}-${currentDate.getMonth() + 1}-${currentDate.getDate()}`;
-const formattedDate = `${currentDate.getDate()}-${currentDate.getMonth() + 1}-${currentDate.getFullYear()}`;
-  const currentDateTime = `${formattedTime}-${formattedDate}`;
+  function incrementNumber() {
+    const currentDate = new Date();
+    const formattedTime = `${currentDate.getHours()}:${currentDate.getMinutes()}:${currentDate.getSeconds()}`;
+    //  const formattedDate = `${currentDate.getFullYear()}-${currentDate.getMonth() + 1}-${currentDate.getDate()}`;
+    const formattedDate = `${currentDate.getDate()}-${currentDate.getMonth() + 1}-${currentDate.getFullYear()}`;
+    const currentDateTime = `${formattedTime}-${formattedDate}`;
 
-  //const date = "23-1-2024"
-  //FORMATTED2024-2-23
-  /*c
-  */
-  const formatttedDate = `${currentDate.getDate()}-${currentDate.getMonth() }-${currentDate.getFullYear()}`;
- //console.log("TABLE" +JSON.stringify(tables))
- //console.log("FORMATTED" +formattedDate)
-let tablesCopy = JSON.parse(JSON.stringify(tables));
-/*tablesCopy = tables.map(table => ({...table, timeForBooking: table.timeForBooking.filter(item => item.dataOfBooking ===formatttedDate)}));
-console.log(JSON.stringify(tablesCopy)) */
+    //const date = "23-1-2024"
+    //FORMATTED2024-2-23
+    /*c
+    */
+    const formatttedDate = `${currentDate.getDate()}-${currentDate.getMonth()}-${currentDate.getFullYear()}`;
+
+    let tablesCopy = JSON.parse(JSON.stringify(tables));
 
 
 
-for(let i=0; i<tablesCopy.length; i++) {
-  const currentDateBookingElements = tablesCopy[i].timeForBooking.filter((item)=> {
-    if(item.dataOfBooking==formattedDate){
-      return item
+    for (let i = 0; i < tablesCopy.length; i++) {
+      const currentDateBookingElements = tablesCopy[i].timeForBooking.filter((item) => {
+        if (item.dataOfBooking == formattedDate) {
+          return item
+        }
+      })
+
+      tablesCopy[i].timeForBooking = currentDateBookingElements
     }
-  })
+    pubsub.publish('NUMBER_INCREMENTED', { currentNumber: currentDateTime });
+    pubsub.publish('CURRENT_TABLES', { tables: tablesCopy });
 
-  tablesCopy[i].timeForBooking=currentDateBookingElements
-}
-pubsub.publish('NUMBER_INCREMENTED', { currentNumber: currentDateTime });
-pubsub.publish('CURRENT_TABLES', { tables: tablesCopy });
-
-  setTimeout(incrementNumber, 1000);
-}
-incrementNumber();
+    setTimeout(incrementNumber, 1000);
+  }
+  incrementNumber();
 }
 
 startServer().catch(error => console.error(error));
@@ -457,7 +522,7 @@ mutation CreateBookingAction {
 
 
 subscription Subscription {
- 
+
 tables {
   amountOfChairs
 }
