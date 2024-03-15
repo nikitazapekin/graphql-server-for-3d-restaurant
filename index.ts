@@ -186,12 +186,12 @@ const isAbleToBook = (checkTime, startTime, endTime) => {
   const checkEndTotalMinutes = checkEndHours * 60 + checkEndMinutes;
   const startTotalMinutes = startHours * 60 + startMinutes;
   const endTotalMinutes = endHours * 60 + endMinutes;
-  console.log("=======================================================")
-  console.log(checkStartTime, startTime, endTime)
-  console.log(isAbleToBookMinures(checkStartTime, startTime, endTime))
+ // console.log("=======================================================")
+ // console.log(checkStartTime, startTime, endTime)
+ // console.log(isAbleToBookMinures(checkStartTime, startTime, endTime))
 
-  console.log(isAbleToBookMinures(checkEndTime, startTime, endTime))
-  console.log("=======================================================")
+ // console.log(isAbleToBookMinures(checkEndTime, startTime, endTime))
+//  console.log("=======================================================")
 
   if (checkStartTotalMinutes < startTotalMinutes && checkEndTotalMinutes > endTotalMinutes) {
     return true
@@ -306,47 +306,161 @@ const tablesCopy = JSON.parse(JSON.stringify(tables))
 
       console.log("DESIRED TIMe" +timeForBooking, input.dataOfBooking)
       for (let i = 0; i < tables.length; i++) {
+       
+       
+       
         if (tables[i].id == bookingElement.tableID) {
           let flag = true
           let bookedTime = ""
-          for (let j = 0; j < tables[i].timeForBooking.length; j++) {
+          console.log("IS FOUND")
+
+          if(input.from!="00:00" || input.to!="00:00") {
+
+
+            const currDay =  tables[i].timeForBooking.filter(item=> item.dataOfBooking==input.dataOfBooking)
+            if(currDay.length==0){
+              tables[Number(bookingElement.tableID) - 1].timeForBooking.push(bookingElement)
+            } else {
+
+              for(let z=0; z<currDay.length; z++ ){
+                if(isAbleToBook(timeForBooking,currDay[z].from,currDay[z].to) ) {
+flag=false
+                }
+              }
+              if(flag) {
+                tables[Number(bookingElement.tableID) - 1].timeForBooking.push(bookingElement)
+              }
+           /*   currDay.map(item => {
+               if( isAbleToBook(timeForBooking, item.from, item.to)  ) {
+                console.log("ABLE")
+                return 
+               }
+              }) */
+            }
+ 
+          }
+          /*  for (let j = 0; j < tables[i].timeForBooking.length; j++) {
+              console.log("ELEMENT" + JSON.stringify(tables[i].timeForBooking[j]))
+              
+            }
+          } */
+
+        /* for (let j = 0; j < tables[i].timeForBooking.length; j++) {
             console.log("ELEMENT" + JSON.stringify(tables[i].timeForBooking[j]))
-            console.log(timeForBooking, tables[i].timeForBooking[j].from, tables[i].timeForBooking[j].to)
+         
+
+
+
+console.log("DATES"+tables[i].timeForBooking[j].dataOfBooking,  input.dataOfBooking)
             if (isAbleToBook(timeForBooking, tables[i].timeForBooking[j].from, tables[i].timeForBooking[j].to) && tables[i].timeForBooking[j].dataOfBooking == input.dataOfBooking) //true =не находится false =  находится
+            {
+              flag = false
+              console.log("CANNOR" + JSON.stringify(tables[i].timeForBooking[j]))
+              bookedTime = tables[i].timeForBooking[j].from + "-" + tables[i].timeForBooking[j].to
+            }  */
+          /*  if (isAbleToBook(timeForBooking, tables[i].timeForBooking[j].from, tables[i].timeForBooking[j].to) && tables[i].timeForBooking[j].dataOfBooking == input.dataOfBooking) //true =не находится false =  находится
             {
               flag = false
               console.log("CANNOR" + JSON.stringify(tables[i].timeForBooking[j]))
               bookedTime = tables[i].timeForBooking[j].from + "-" + tables[i].timeForBooking[j].to
             }
             else if (tables[i].timeForBooking[j].from == "00:00" && tables[i].timeForBooking[j].to == "00:00") {
-              flag = false
+          //    flag = false
             }
             else {
               console.log("НЕ Содержится", timeForBooking, tables[i].timeForBooking[j].from, tables[i].timeForBooking[j].to)
-            }
-          }
+            } */
+      //    }
           if ((tables[i].timeForBooking.length == 0 && input.from == "00:00" && input.to == "00:00")) {
             tables[Number(bookingElement.tableID) - 1].timeForBooking.push(bookingElement)
           }
           else if ((tables[i].timeForBooking.length != 0 && input.from == "00:00" && input.to == "00:00")) {
-            flag = false
-            errorMessage = "You cannot reserve this table for the whole day as it is already booked for some time"
-            bookedTime = "00:00-00:00"
+            let countOfOffersAtCurrentDataOfBooking =0
+for(let z=0; z< tables[i].timeForBooking.length; z++) {
+  console.log("DESIRED TIMe" +timeForBooking, input.dataOfBooking)
+  console.log("BOOKedD TIME "+JSON.stringify(tables[i].timeForBooking[z]))
+  if(tables[i].timeForBooking[z].dataOfBooking==input.dataOfBooking){
+    countOfOffersAtCurrentDataOfBooking++
+  }
+  //BOOKedD TIME {"tableID":1,"from":"00:00","to":"00:00","amountOfChairs":1,"dataOfBooking":"15-3-2024","timeForBooking":"00:00-00:00"}
+}
+console.log("COUNTTT" +countOfOffersAtCurrentDataOfBooking)
+if(countOfOffersAtCurrentDataOfBooking>0){
+  flag = false
+                console.log("INPUT DATA" , input.dataOfBooking) //16-3-2024
+                errorMessage = "You cannot reserve this table for the whole day as it is already booked for some time"
+                bookedTime = "00:00-00:00"
+}
+  else {
+    tables[Number(bookingElement.tableID) - 1].timeForBooking.push(bookingElement)
+  }
           }
+         /* else if ((tables[i].timeForBooking.length != 0 && input.from == "00:00" && input.to == "00:00")) {
+
+let count=0
+let countOfOffers=0
+            for(let z=0; z<tables[i].timeForBooking.length; z++) {
+              console.log("BOOKING TIME" +JSON.stringify(tables[i].timeForBooking[z])) 
+
+              console.log("TBS"+tables[i].timeForBooking[z].dataOfBooking)
+              console.log("INP"+input.dataOfBooking)
+              if(tables[i].timeForBooking[z].dataOfBooking==input.dataOfBooking){
+                countOfOffers++
+                count++
+               // if(count!=1){
+
+
+              }
+              if(count!=0){
+
+                flag = false
+                // && input.dataOfBooking==tables[i].timeForBooking[i].dataOfBooking
+    
+                console.log("INPUT DATA" , input.dataOfBooking) //16-3-2024
+                errorMessage = "You cannot reserve this table for the whole day as it is already booked for some time"
+                bookedTime = "00:00-00:00"
+              } 
+           //   }
+
+
+
+              else {
+
+              //  console.log("YOU BOOKED THIS TABLE FOR WHOLE DAY")
+                if(countOfOffers==0){
+                }
+                //if()
+            //    tables[Number(bookingElement.tableID) - 1].timeForBooking.push(bookingElement)
+
+              }
+
+
+              if(count==0) {
+                tables[Number(bookingElement.tableID) - 1].timeForBooking.push(bookingElement)
+              }
+              //BOOKING TIME{"tableID":1,"from":"00:00","to":"00:00","amountOfChairs":1,"dataOfBooking":"15-3-2024","timeForBooking":"00:00-00:00"}
+            }
+          }
+          */
           else {
 
             if (flag) {
-              tables[Number(bookingElement.tableID) - 1].timeForBooking.push(bookingElement)
+            //  tables[Number(bookingElement.tableID) - 1].timeForBooking.push(bookingElement)
             }
             else {
               errorMessage = `You cannot book this table as it is already booked for typed time`
               console.log("YOU CANT BOOK THIS TABLE BECAUUSE" + bookedTime)
             }
           }
+
         }
       }
+
+      for(let i=0; i<tables.length; i++) {
+        console.log("TABL"+JSON.stringify(tables[i]))
+      }
       return { bookingElement, errorMessage };
-    } 
+    }  
   },
   Query: {
     currentNumber() {
@@ -409,7 +523,7 @@ const tablesCopy = JSON.parse(JSON.stringify(tables))
       }
       const arrayOfAbleToBookTables = []
       for (let i = 0; i < tablesCopy.length; i++) {
-        console.log("ELEMENT" + JSON.stringify(tablesCopy[i]))
+      //  console.log("ELEMENT" + JSON.stringify(tablesCopy[i]))
         let isBooked = false
         for (let j = 0; j < tablesCopy[i].timeForBooking.length; j++) {
           if (tablesCopy[i].timeForBooking[j].from == "00:00" && tablesCopy[i].timeForBooking[j].to == "00:00") {
