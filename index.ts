@@ -16,7 +16,7 @@ type Table = {
   dataOfBooking: string
   isBookedBy: string
 };
-const tables = [
+let tables = [
   {
     id: 1,
     timeForBooking: [] as Table[],
@@ -122,6 +122,8 @@ input UserInput {
 type Mutation {
   createUser(input: UserInput): User
   createBookingAction(input: BookingActionObject): BookingActionResult
+
+  removeFromBookedElements(input:  BookingActionObject): [TablesArray]
  
 }
 type MutationBookingAction {
@@ -136,7 +138,7 @@ type Subscription {
   tables: [TableInfo]
 }
 `;
-
+//    removeFromBookedElements: (parent, { input }) => { 
 const pubsub = new PubSub();
 let currentNumber = 0;
 const createUser = (input) => {
@@ -279,9 +281,50 @@ const resolvers = {
       }
       return { bookingElement, errorMessage };
     }, 
- /*   removeFromBookedElements: (parent, { input }) => { 
+    removeFromBookedElements: (parent, { input }) => { 
+tables =tables.map(table => ({
+  ...table,
+  timeForBooking: table.timeForBooking.filter(item => !(item.isBookedBy === input.isBookedBy && item.tableID===input.tableID && input.from===item.from && input.to===item.to && input.dataOfBooking ===item.dataOfBooking))
+}));
+return tables; 
+//}
 
-    } */
+/*
+   console.log("YOUR BOOKED TABLES", user);
+      const tablesCopy = JSON.parse(JSON.stringify(tables));
+      const yourBookedOffersArray = tablesCopy.map(table => ({
+        ...table,
+        timeForBooking: table.timeForBooking.filter(item => item.isBookedBy === user)
+      }));
+    
+      console.log("NEWWWWWWW", JSON.stringify(yourBookedOffersArray));
+      return yourBookedOffersArray; 
+    }
+    */
+/*
+
+mutation RemoveFromBookedElements {
+  removeFromBookedElements(input: {
+    tableID: 2
+    from: "12:00"
+    to: "14:00"
+    amountOfChairs: 3
+    dataOfBooking: "20-3-2024"
+    isBookedBy: "vw"
+ } ) {
+    timeForBooking {
+       tableID
+      from
+      to
+      amountOfChairs
+      dataOfBooking
+      isBookedBy
+    }
+  }
+}
+*/
+
+    } 
   },
   Query: {
     currentNumber() {
