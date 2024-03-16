@@ -190,7 +190,7 @@ const isAbleToBook = (checkTime, startTime, endTime) => {
  // console.log(checkStartTime, startTime, endTime)
  // console.log(isAbleToBookMinures(checkStartTime, startTime, endTime))
 
- // console.log(isAbleToBookMinures(checkEndTime, startTime, endTime))
+ // console.log(isAbleToBookMinures(checkEndTime, startTime, endTime))dd
 //  console.log("=======================================================")
 
   if (checkStartTotalMinutes < startTotalMinutes && checkEndTotalMinutes > endTotalMinutes) {
