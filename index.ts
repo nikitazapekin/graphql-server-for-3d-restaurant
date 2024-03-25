@@ -14,7 +14,9 @@ type Table = {
   amountOfChairs: number
   timeForBooking: string
   dataOfBooking: string
-  isBookedBy: string
+  isBookedBy: string,
+  timeOfBooking: string,
+  isConfirmed: boolean
 };
 let tables = [
   {
@@ -72,6 +74,8 @@ type TableArray {
   timeForBooking: String
   dataOfBooking: String
   isBookedBy: String
+  timeOfBooking: String
+  isConfirmed: Boolean
 }
 
 type TableInfo {
@@ -105,6 +109,8 @@ type BookingAction {
   amountOfChairs: Int
   dataOfBooking: String
   isBookedBy: String
+  timeOfBooking: String
+  isConfirmed: Boolean
 }
 input BookingActionObject {
   tableID: Int
@@ -113,6 +119,8 @@ input BookingActionObject {
   amountOfChairs: Int
   dataOfBooking: String
   isBookedBy: String
+  timeOfBooking: String
+  isConfirmed: Boolean
 }
 input UserInput {
   id: ID
@@ -199,14 +207,21 @@ const isAbleToBook = (checkTime, startTime, endTime) => {
     return false;
   }
 }
-
+// isConfirmed: Boolean
 
 const resolvers = {
   MutationBookingAction: {
     createBookingAction: (parent, { input }) => {
-      const { tableID, from, to, amountOfChairs, dataOfBooking } = input;
+      const { tableID, from, to, amountOfChairs, dataOfBooking, timeOfBooking, isConfirmed } = input;
       const timeForBooking = from + "-" + to;
       console.log("TIME FOR BOOKING: " + timeForBooking);
+
+
+
+
+
+
+
 
       const bookingElement = createBookingAction({
         tableID,
@@ -214,7 +229,8 @@ const resolvers = {
         to,
         amountOfChairs,
         dataOfBooking,
-        timeForBooking
+        timeForBooking,
+        timeOfBooking
       });
 
       return bookingElement;
@@ -230,7 +246,29 @@ const resolvers = {
     createBookingAction: (parent, { input }) => {
       const timeForBooking = input.from + "-" + input.to;
       let errorMessage = ""
-      const bookingElement = createBookingAction({ ...input, timeForBooking: timeForBooking });
+
+      console.log("CREATIIIIIIING")
+
+
+
+      const currentTime = new Date();
+      const hours = currentTime.getHours()
+      const minutes = currentTime.getMinutes();
+      const seconds = currentTime.getSeconds();
+
+
+      const formattedHours = hours < 10 ? "0" + hours : hours;
+      const formattedMinutes = minutes < 10 ? "0" + minutes : minutes;
+      const formattedSeconds = seconds < 10 ? "0" + seconds : seconds;
+
+
+      const timeOfBooking = `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
+
+
+
+
+
+      const bookingElement = createBookingAction({ ...input, timeForBooking: timeForBooking, timeOfBooking: timeOfBooking, isConfirmed: false });
       for (let i = 0; i < tables.length; i++) {
         if (tables[i].id == bookingElement.tableID) {
           let flag = true
@@ -280,51 +318,51 @@ const resolvers = {
         }
       }
       return { bookingElement, errorMessage };
-    }, 
-    removeFromBookedElements: (parent, { input }) => { 
-tables =tables.map(table => ({
-  ...table,
-  timeForBooking: table.timeForBooking.filter(item => !(item.isBookedBy === input.isBookedBy && item.tableID===input.tableID && input.from===item.from && input.to===item.to && input.dataOfBooking ===item.dataOfBooking))
-}));
-return tables; 
-//}
-
-/*
-   console.log("YOUR BOOKED TABLES", user);
-      const tablesCopy = JSON.parse(JSON.stringify(tables));
-      const yourBookedOffersArray = tablesCopy.map(table => ({
+    },
+    removeFromBookedElements: (parent, { input }) => {
+      tables = tables.map(table => ({
         ...table,
-        timeForBooking: table.timeForBooking.filter(item => item.isBookedBy === user)
+        timeForBooking: table.timeForBooking.filter(item => !(item.isBookedBy === input.isBookedBy && item.tableID === input.tableID && input.from === item.from && input.to === item.to && input.dataOfBooking === item.dataOfBooking))
       }));
-    
-      console.log("NEWWWWWWW", JSON.stringify(yourBookedOffersArray));
-      return yourBookedOffersArray; 
-    }
-    */
-/*
+      return tables;
+      //}
 
-mutation RemoveFromBookedElements {
-  removeFromBookedElements(input: {
-    tableID: 2
-    from: "12:00"
-    to: "14:00"
-    amountOfChairs: 3
-    dataOfBooking: "20-3-2024"
-    isBookedBy: "vw"
- } ) {
-    timeForBooking {
-       tableID
-      from
-      to
-      amountOfChairs
-      dataOfBooking
-      isBookedBy
-    }
-  }
-}
-*/
+      /*
+         console.log("YOUR BOOKED TABLES", user);
+            const tablesCopy = JSON.parse(JSON.stringify(tables));
+            const yourBookedOffersArray = tablesCopy.map(table => ({
+              ...table,
+              timeForBooking: table.timeForBooking.filter(item => item.isBookedBy === user)
+            }));
+          
+            console.log("NEWWWWWWW", JSON.stringify(yourBookedOffersArray));
+            return yourBookedOffersArray; 
+          }
+          */
+      /*
+      
+      mutation RemoveFromBookedElements {
+        removeFromBookedElements(input: {
+          tableID: 2
+          from: "12:00"
+          to: "14:00"
+          amountOfChairs: 3
+          dataOfBooking: "20-3-2024"
+          isBookedBy: "vw"
+       } ) {
+          timeForBooking {
+             tableID
+            from
+            to
+            amountOfChairs
+            dataOfBooking
+            isBookedBy
+          }
+        }
+      }
+      */
 
-    } 
+    }
   },
   Query: {
     currentNumber() {
@@ -341,10 +379,12 @@ mutation RemoveFromBookedElements {
       }
       )
       if (table) {
+        console.log("FOUNDDD TABLE" + JSON.stringify(table))
         return {
           id: table.id,
           amountOfChairs: table.amountOfChairs,
-          timeForBooking: dateTimeForBooking
+          timeForBooking: dateTimeForBooking,
+          //  timeOfBooking: table.timeOfBooking
         };
       } else {
         return null;
@@ -393,12 +433,12 @@ mutation RemoveFromBookedElements {
         ...table,
         timeForBooking: table.timeForBooking.filter(item => item.isBookedBy === user)
       }));
-    
+
       console.log("NEWWWWWWW", JSON.stringify(yourBookedOffersArray));
-      return yourBookedOffersArray; 
+      return yourBookedOffersArray;
     }
-  
-},
+
+  },
   Subscription: {
     currentNumber: {
       subscribe: () => pubsub.asyncIterator(['NUMBER_INCREMENTED']),
