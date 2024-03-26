@@ -132,6 +132,8 @@ type Mutation {
   createBookingAction(input: BookingActionObject): BookingActionResult
 
   removeFromBookedElements(input:  BookingActionObject): [TablesArray]
+
+ confirmBookedElements(input:  BookingActionObject): [TablesArray]
  
 }
 type MutationBookingAction {
@@ -362,6 +364,39 @@ const resolvers = {
       }
       */
 
+    },
+
+
+    confirmBookedElements: (parent, { input }) => {
+      console.log("CONFIRMING", JSON.stringify(input))
+
+      console.log("TABLSE " +JSON.stringify(tables))
+
+
+  
+
+      tables = tables.map((table) => ({
+        ...table,
+        timeForBooking: table.timeForBooking.map((item) => {
+          if (
+            item.tableID == input.tableID &&
+            item.isBookedBy === input.isBookedBy &&
+            item.from === input.from &&
+            item.to === input.to &&
+            item.dataOfBooking === input.dataOfBooking
+          ) {
+          
+            return { ...item, isConfirmed: true }; 
+          } else {
+            return item;
+          }
+        }),
+      }));
+      
+     // console.log("new tables", JSON.stringify(tables));
+     // return tables;
+      console.log("new tables" +JSON.stringify(tables))
+      return tables
     }
   },
   Query: {
