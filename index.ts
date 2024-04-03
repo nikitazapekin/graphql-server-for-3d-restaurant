@@ -161,11 +161,14 @@ type Mutation {
 
  replaceToHistory(input:  BookingActionObject): [TablesArray]
 
-
- replaceFromHistory(input:  BookingActionObject): [TablesArray]
+ replaceFromHistory(input:  BookingActionObject): ReplaceFromHistoryResult
 }
 type MutationBookingAction {
   createBookingAction(input: BookingActionObject): BookingActionResult
+}
+
+type ReplaceFromHistoryResult {
+  errorMessage: String
 }
 type BookingActionResult {
   bookingElement: BookingAction
@@ -177,6 +180,7 @@ type Subscription {
 }
 `;
 
+//replaceFromHistory(input:  BookingActionObject): [TablesArray]
 const pubsub = new PubSub();
 let currentNumber = 0;
 const createUser = (input) => {
@@ -433,13 +437,7 @@ const resolvers = {
 
     replaceFromHistory: (parent, { input }) => {
 
-
-      for(let i=0; i<5; i++){
-
-        console.log("-------------------------------------------------------------------------------------------------------------")
-      }
-      console.log("REPLACEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE" +JSON.stringify(input))
-      console.log("TABLEDSSS" + JSON.stringify(tables))
+ 
  
 const selectedElement = tables.map(table =>
   table.history.filter(item =>
@@ -454,16 +452,7 @@ const selectedElement = tables.map(table =>
     console.log("SEL" +JSON.stringify(selectedElement))
  
 
-
-    /*
-
-SEL[{"tableID":2,"from":"00:00","to":"00:00","amountOfChairs":1,"dataOfBooking":"2-4-2024","isBookedBy":"1712055607341","timeForBooking":"00:00-00:00","timeOfBooking":"20:45:06","isConfirmed":false}]   
-    REPLACEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE{"tableID":2,"from":"00:00","to":"00:00","amountOfChairs":1,"dataOfBooking":"2-4-2024","isBookedBy":"1712055607341"}
-TABLEDSSS[{"id":1,"timeForBooking":[],"amountOfChairs":4,"history":[]},{"id":2,"timeForBooking":[],"amountOfChairs":4,"history":[{"tableID":2,"from":"00:00","to":"00:00","amountOfChairs":1,"dataOfBooking":"2-4-2024","isBookedBy":"1712055607341","timeForBooking":"00:00-00:00","timeOfBooking":"20:45:06","isConfirmed":false}]},{"id":3,"timeForBooking":[],"amountOfChairs":2,"history":[]},{"id":4,"timeForBooking":[],"amountOfChairs":2,"history":[]},{"id":5,"timeForBooking":[],"amountOfChairs":2,"history":[]},{"id":6,"timeForBooking":[],"amountOfChairs":2,"history":[]},{"id":7,"timeForBooking":[],"amountOfChairs":2,"history":[]},{"id":8,"timeForBooking":[],"amountOfChairs":2,"history":[]}]
-SEL[{"tableID":2,"from":"00:00","to":"00:00","amountOfChairs":1,"dataOfBooking":"2-4-2024","isBookedBy":"1712055607341","timeForBooking":"00:00-00:00","timeOfBooking":"20:45:06","isConfirmed":false}]      
-NEW TABBBBBBBBBBB[{"id":1,"timeForBooking":[],"amountOfChairs":4,"history":[]},{"id":2,"timeForBooking":[{"tableID":2,"from":"00:00","to":"00:00","amountOfChairs":1,"dataOfBooking":"2-4-2024","isBookedBy":"1712055607341","timeForBooking":"00:00-00:00","timeOfBooking":"20:45:06","isConfirmed":false}],"amountOfChairs":4,"history":[{"tableID":2,"from":"00:00","to":"00:00","amountOfChairs":1,"dataOfBooking":"2-4-2024","isBookedBy":"1712055607341","timeForBooking":"00:00-00:00","timeOfBooking":"20:45:06","isConfirmed":false}]},{"id":3,"timeForBooking":[],"amountOfChairs":2,"history":[]},{"id":4,"timeForBooking":[],"amountOfChairs":2,"history":[]},{"id":5,"timeForBooking":[],"amountOfChairs":2,"history":[]},{"id":6,"timeForBooking":[],"amountOfChairs":2,"history":[]},{"id":7,"timeForBooking":[],"amountOfChairs":2,"history":[]},{"id":8,"timeForBooking":[],"amountOfChairs":2,"history":[]}]
-
-*/
+ 
 let errorMessage=""
 let isAdded = false
  for (let i = 0; i < tables.length; i++) {
@@ -520,13 +509,13 @@ let isAdded = false
             console.log("CHANGEEEEEEEEEEEEEEEEEE" +JSON.stringify(   selectedElement[0]))
             tables[Number(selectedElement[0].tableID) - 1].timeForBooking.push(selectedElement[0])
 isAdded = true 
-       /*     console.log("CORRRRRRRRRRRRRRRRRRRRRRRdRRREEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEECCCCCCCCCCCCCCCCCCCCCCCCCCTTTTTTTTTTTTTTTTTTTTTTTT")
+      
 
-        
-            selectedElement[0].isConfirmed= true
-            console.log("CHANGEEEEEEEEEEEEEEEEEE" +JSON.stringify(   selectedElement[0]))
-            tables[Number(selectedElement[0].tableID) - 1].timeForBooking.push(selectedElement[0])
-isAdded = true */
+tables = tables.map(table => ({
+  ...table,
+  history: table.history.filter(item => !(item.isBookedBy === input.isBookedBy && item.tableID === input.tableID && input.from === item.from && input.to === item.to && input.dataOfBooking === item.dataOfBooking))
+ }));
+ 
            
           }
           else {
@@ -542,20 +531,14 @@ isAdded = true */
     }    
     
 
+ if(isAdded==false) {
 /*
-    console.log("CORRRRRRRRRRRRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEECCCCCCCCCCCCCCCCCCCCCCCCCCTTTTTTTTTTTTTTTTTTTTTTTT")
-
-        
-    selectedElement[0].isConfirmed= true
-    console.log("CHANGEEEEEEEEEEEEEEEEEE" +JSON.stringify(   selectedElement[0]))
-    tables[Number(selectedElement[0].tableID) - 1].timeForBooking.push(selectedElement[0])
-isAdded = true
-     */
-    tables = tables.map(table => ({
-      ...table,
-      history: table.history.filter(item => !(item.isBookedBy === input.isBookedBy && item.tableID === input.tableID && input.from === item.from && input.to === item.to && input.dataOfBooking === item.dataOfBooking))
-    }));
-
+   tables = tables.map(table => ({
+     ...table,
+     history: table.history.filter(item => !(item.isBookedBy === input.isBookedBy && item.tableID === input.tableID && input.from === item.from && input.to === item.to && input.dataOfBooking === item.dataOfBooking))
+    })); */
+    
+  }
 
 
 
@@ -569,11 +552,15 @@ isAdded = true
 
 
 
-    console.log("NEW TABBBBBBBBBBB" + JSON.stringify(tables))
+    console.log("TSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS" + JSON.stringify(tables))
+    for(let b=0 ; b <10; b++) {
+      console.log("CORRRRRRRRRRRRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEECCCCCCCCCCCCCCCCCCCCCCCCCCTTTTTTTTTTTTTTTTTTTTTTTT")
 
 
-
-      return tables;
+    }
+console.log("ERR" +errorMessage)
+return { errorMessage }
+      //return tables;
 
     },
     
