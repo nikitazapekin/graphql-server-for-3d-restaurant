@@ -6,7 +6,8 @@ const { makeExecutableSchema } = require('@graphql-tools/schema');
 const { PubSub } = require('graphql-subscriptions');
 const { execute, subscribe } = require('graphql');
 const { SubscriptionServer } = require('subscriptions-transport-ws');
-//const typeDefs = require('./typeDefs')
+
+
 type Table = {
   tableID: number
   from: string,
@@ -180,7 +181,6 @@ type Subscription {
 }
 `;
 
-//replaceFromHistory(input:  BookingActionObject): [TablesArray]
 const pubsub = new PubSub();
 let currentNumber = 0;
 const createUser = (input) => {
@@ -196,9 +196,6 @@ const createBookingAction = (input) => {
 }
 
 
-
-
-
 const isAbleToBookMinures = (checkTime, startTime, endTime) => {
   const [checkHours, checkMinutes] = checkTime.split(":").map(Number);
   const [startHours, startMinutes] = startTime.split(":").map(Number);
@@ -207,10 +204,8 @@ const isAbleToBookMinures = (checkTime, startTime, endTime) => {
   const startTotalMinutes = startHours * 60 + startMinutes;
   const endTotalMinutes = endHours * 60 + endMinutes;
   if (checkTotalMinutes >= startTotalMinutes && checkTotalMinutes <= endTotalMinutes) {
-    console.log(`${checkTime} находится в промежутке между ${startTime} и ${endTime}.`);
     return true
   } else {
-    console.log(`${checkTime} не находится в промежутке между ${startTime} и ${endTime}.`);
     return false
   }
 }
@@ -219,16 +214,12 @@ const isAbleToBook = (checkTime, startTime, endTime) => {
   const [checkStartTime, checkEndTime] = checkTime.split("-");
   const [checkStartHours, checkStartMinutes] = checkStartTime.split(":").map(Number);
   const [checkEndHours, checkEndMinutes] = checkEndTime.split(":").map(Number);
-
   const [startHours, startMinutes] = startTime.split(":").map(Number);
   const [endHours, endMinutes] = endTime.split(":").map(Number);
-
   const checkStartTotalMinutes = checkStartHours * 60 + checkStartMinutes;
   const checkEndTotalMinutes = checkEndHours * 60 + checkEndMinutes;
   const startTotalMinutes = startHours * 60 + startMinutes;
   const endTotalMinutes = endHours * 60 + endMinutes;
-
-
   if (checkStartTotalMinutes < startTotalMinutes && checkEndTotalMinutes > endTotalMinutes) {
     return true
   }
@@ -241,22 +232,11 @@ const isAbleToBook = (checkTime, startTime, endTime) => {
     return false;
   }
 }
-// isConfirmed: Boolean
-
 const resolvers = {
   MutationBookingAction: {
     createBookingAction: (parent, { input }) => {
       const { tableID, from, to, amountOfChairs, dataOfBooking, timeOfBooking, isConfirmed } = input;
       const timeForBooking = from + "-" + to;
-      console.log("TIME FOR BOOKING: " + timeForBooking);
-
-
-
-
-
-
-
-
       const bookingElement = createBookingAction({
         tableID,
         from,
@@ -280,28 +260,14 @@ const resolvers = {
     createBookingAction: (parent, { input }) => {
       const timeForBooking = input.from + "-" + input.to;
       let errorMessage = ""
-
-
-
-
-
       const currentTime = new Date();
       const hours = currentTime.getHours()
       const minutes = currentTime.getMinutes();
       const seconds = currentTime.getSeconds();
-
-
       const formattedHours = hours < 10 ? "0" + hours : hours;
       const formattedMinutes = minutes < 10 ? "0" + minutes : minutes;
       const formattedSeconds = seconds < 10 ? "0" + seconds : seconds;
-
-
       const timeOfBooking = `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
-
-
-
-
-
       const bookingElement = createBookingAction({ ...input, timeForBooking: timeForBooking, timeOfBooking: timeOfBooking, isConfirmed: false });
       for (let i = 0; i < tables.length; i++) {
         if (tables[i].id == bookingElement.tableID) {
@@ -354,10 +320,6 @@ const resolvers = {
       return { bookingElement, errorMessage };
     },
     removeFromBookedElements: (parent, { input }) => {
-
-      console.log("CURRRRRRRRRRRRREEEEEEEEEEEEENT TABBBBBBBBBBBBBBBLEEEEEEEEEEESS" + JSON.stringify(tables))
-
-
       const selectedTable = tables.find(table =>
         table.timeForBooking.some(item =>
           item.isBookedBy === input.isBookedBy &&
@@ -367,214 +329,109 @@ const resolvers = {
           input.dataOfBooking === item.dataOfBooking
         )
       );
-
-
-      console.log("SELECTED" + JSON.stringify(selectedTable))
-      console.log("TIME FOR" + JSON.stringify(selectedTable.timeForBooking))
-
-
       tables[selectedTable.id - 1].history.push(selectedTable.timeForBooking[0])
-
-
       tables = tables.map(table => ({
         ...table,
         timeForBooking: table.timeForBooking.filter(item => !(item.isBookedBy === input.isBookedBy && item.tableID === input.tableID && input.from === item.from && input.to === item.to && input.dataOfBooking === item.dataOfBooking))
       }));
-
-
-
-
-      console.log("NEW TABBBBBBBBBBB" + JSON.stringify(tables))
       return tables;
-
-      /*
-      
-      mutation RemoveFromBookedElements {
-        removeFromBookedElements(input: {
-          tableID: 2
-          from: "12:00"
-          to: "14:00"
-          amountOfChairs: 3
-          dataOfBooking: "20-3-2024"
-          isBookedBy: "vw"
-       } ) {
-          timeForBooking {
-             tableID
-            from
-            to
-            amountOfChairs
-            dataOfBooking
-            isBookedBy
-          }
-        }
-      }
-      */
-
     },
-
-
     replaceToHistory: (parent, { input }) => {
-      console.log("TABLEDSSS" + JSON.stringify(tables))
       const selectedTable = tables.find(table => ({
         ...table,
         timeForBooking: table.timeForBooking.filter(item => (item.isBookedBy === input.isBookedBy && item.tableID === input.tableID && input.from === item.from && input.to === item.to && input.dataOfBooking === item.dataOfBooking))
       }));
       tables[selectedTable.id - 1].history.push(selectedTable.timeForBooking[0])
-      console.log("SELECTED" + JSON.stringify(selectedTable))
-      console.log("TIME FOR" + JSON.stringify(selectedTable.timeForBooking))
       tables = tables.map(table => ({
         ...table,
         timeForBooking: table.timeForBooking.filter(item => !(item.isBookedBy === input.isBookedBy && item.tableID === input.tableID && input.from === item.from && input.to === item.to && input.dataOfBooking === item.dataOfBooking))
       }));
-      console.log("NEW TABBBBBBBBBBB" + JSON.stringify(tables))
       return tables;
 
     },
-
-
-
-
-
     replaceFromHistory: (parent, { input }) => {
+console.log("REPLACE FROM HISTORY")
+      const selectedElement = tables.map(table =>
+        table.history.filter(item =>
+          item.isBookedBy === input.isBookedBy &&
+          item.tableID === input.tableID &&
+          input.from === item.from &&
+          input.to === item.to &&
+          input.dataOfBooking === item.dataOfBooking
+        )
+      ).flat();
 
- 
- 
-const selectedElement = tables.map(table =>
-  table.history.filter(item =>
-    item.isBookedBy === input.isBookedBy &&
-    item.tableID === input.tableID &&
-    input.from === item.from &&
-    input.to === item.to &&
-    input.dataOfBooking === item.dataOfBooking
-  )
-).flat();
- 
-    console.log("SEL" +JSON.stringify(selectedElement))
- 
-
- 
-let errorMessage=""
-let isAdded = false
- for (let i = 0; i < tables.length; i++) {
-  if (tables[i].id == selectedElement[0].tableID) {
-        let flag = true
-        let bookedTime = ""
-        if (input.from != "00:00" || input.to != "00:00") {
-          const currDay = tables[i].timeForBooking.filter(item => item.dataOfBooking == input.dataOfBooking)
-          if (currDay.length == 0) {
-            tables[Number(selectedElement[0].tableID) - 1].timeForBooking.push(selectedElement[0])
-          } else {
-            for (let z = 0; z < currDay.length; z++) {
-              if (isAbleToBook(selectedElement[0].timeForBooking, currDay[z].from, currDay[z].to)) {
-                flag = false
+      console.log("selected" +JSON.stringify(selectedElement))
+      let errorMessage = ""
+      let isAdded = false
+      for (let i = 0; i < tables.length; i++) {
+        if (tables[i].id == selectedElement[0].tableID) {
+          let flag = true
+          let bookedTime = ""
+          if (input.from != "00:00" || input.to != "00:00") {
+            const currDay = tables[i].timeForBooking.filter(item => item.dataOfBooking == input.dataOfBooking)
+            if (currDay.length == 0) {
+              tables[Number(selectedElement[0].tableID) - 1].timeForBooking.push(selectedElement[0])
+            } else {
+              for (let z = 0; z < currDay.length; z++) {
+                if (isAbleToBook(selectedElement[0].timeForBooking, currDay[z].from, currDay[z].to)) {
+                  flag = false
+                }
+              }
+              if (flag) {
+                tables[Number(selectedElement[0].tableID) - 1].timeForBooking.push(selectedElement[0])
               }
             }
-            if (flag) {
-              tables[Number(selectedElement[0].tableID) - 1].timeForBooking.push(selectedElement[0])
-            }
           }
-        }
-        if ((tables[i].timeForBooking.length == 0 && input.from == "00:00" && input.to == "00:00")) {
-          tables[Number(selectedElement[0].tableID) - 1].timeForBooking.push(selectedElement[0])
-        }
-        else if ((tables[i].timeForBooking.length != 0 && input.from == "00:00" && input.to == "00:00")) {
-          let countOfOffersAtCurrentDataOfBooking = 0
-          for (let z = 0; z < tables[i].timeForBooking.length; z++) {
-            if (tables[i].timeForBooking[z].dataOfBooking == input.dataOfBooking) {
-              countOfOffersAtCurrentDataOfBooking++
-            }
-          }
-          if (countOfOffersAtCurrentDataOfBooking > 0) {
-            flag = false
-            errorMessage = "You cannot reserve this table for the whole day as it is already booked for some time"
-            bookedTime = "00:00-00:00"
-
-
-
-            console.log("ERRRRRRRRRRRRRRRRRRRRRRRRRORRRRRRRRRRRRRRRRRRRRRRRRR")
-
-            console.log(errorMessage)
-          }
-          else {
-          }
-        }
-        else {
-          if (flag) {
-            for(let b=0 ; b <10; b++) {
-              console.log("CORRRRRRRRRRRRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEECCCCCCCCCCCCCCCCCCCCCCCCCCTTTTTTTTTTTTTTTTTTTTTTTT")
-
-
-            }
-            selectedElement[0].isConfirmed= true
-            console.log("CHANGEEEEEEEEEEEEEEEEEE" +JSON.stringify(   selectedElement[0]))
+          if ((tables[i].timeForBooking.length == 0 && input.from == "00:00" && input.to == "00:00")) {
             tables[Number(selectedElement[0].tableID) - 1].timeForBooking.push(selectedElement[0])
-isAdded = true 
-      
-
-tables = tables.map(table => ({
-  ...table,
-  history: table.history.filter(item => !(item.isBookedBy === input.isBookedBy && item.tableID === input.tableID && input.from === item.from && input.to === item.to && input.dataOfBooking === item.dataOfBooking))
- }));
- 
-           
+          }
+          else if ((tables[i].timeForBooking.length != 0 && input.from == "00:00" && input.to == "00:00")) {
+            let countOfOffersAtCurrentDataOfBooking = 0
+            for (let z = 0; z < tables[i].timeForBooking.length; z++) {
+              if (tables[i].timeForBooking[z].dataOfBooking == input.dataOfBooking) {
+                countOfOffersAtCurrentDataOfBooking++
+              }
+            }
+            if (countOfOffersAtCurrentDataOfBooking > 0) {
+              flag = false
+              errorMessage = "You cannot reserve this table for the whole day as it is already booked for some time"
+              bookedTime = "00:00-00:00"
+            }
+            else {
+            }
           }
           else {
-            errorMessage = `You cannot book this table as it is already booked for typed time`
+            if (flag) {
+              selectedElement[0].isConfirmed = true
+              tables[Number(selectedElement[0].tableID) - 1].timeForBooking.push(selectedElement[0])
+              isAdded = true
+              tables = tables.map(table => ({
+                ...table,
+                history: table.history.filter(item => !(item.isBookedBy === input.isBookedBy && item.tableID === input.tableID && input.from === item.from && input.to === item.to && input.dataOfBooking === item.dataOfBooking))
+              }));
 
-            console.log("ERRRRRRRRRRRRRRRRRRRRRRRRRORRRRRRRRRRRRRRRRRRRRRRRRR")
 
-            console.log(errorMessage)
+            }
+            else {
+              errorMessage = `You cannot book this table as it is already booked for typed time`
+            }
           }
         }
-
       }
-    }    
-    
 
- if(isAdded==false) {
-/*
-   tables = tables.map(table => ({
-     ...table,
-     history: table.history.filter(item => !(item.isBookedBy === input.isBookedBy && item.tableID === input.tableID && input.from === item.from && input.to === item.to && input.dataOfBooking === item.dataOfBooking))
-    })); */
-    
-  }
+      tables = tables.map(table => ({
+        ...table,
+        timeForBooking: [...new Set(table.timeForBooking)]
 
-
-
-
-
-
-    tables = tables.map(table => ({
-      ...table,
-      timeForBooking: [...new Set(table.timeForBooking)]
-    }));
-
-
-
-    console.log("TSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS" + JSON.stringify(tables))
-    for(let b=0 ; b <10; b++) {
-      console.log("CORRRRRRRRRRRRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEECCCCCCCCCCCCCCCCCCCCCCCCCCTTTTTTTTTTTTTTTTTTTTTTTT")
-
-
-    }
-console.log("ERR" +errorMessage)
-return { errorMessage }
-      //return tables;
+        
+      }));
+      return { errorMessage }
 
     },
-    
-
-
-
     confirmBookedElements: (parent, { input }) => {
-      console.log("CONFIRMING", JSON.stringify(input))
 
-      console.log("TABLSE " + JSON.stringify(tables))
-
-
-
-
+      console.log("CONFIRM BOOKED ELEMENTS")
       tables = tables.map((table) => ({
         ...table,
         timeForBooking: table.timeForBooking.map((item) => {
@@ -592,9 +449,7 @@ return { errorMessage }
           }
         }),
       }));
-
-
-      console.log("new tables" + JSON.stringify(tables))
+      console.log("TABLESSSSSSSSS" +JSON.stringify(tables))
       return tables
     }
   },
@@ -613,19 +468,15 @@ return { errorMessage }
       }
       )
       if (table) {
-        console.log("FOUNDDD TABLE" + JSON.stringify(table))
         return {
           id: table.id,
           amountOfChairs: table.amountOfChairs,
           timeForBooking: dateTimeForBooking,
-          //  timeOfBooking: table.timeOfBooking
         };
       } else {
         return null;
       }
     },
-
-
     getCalendarInfoAboutTables: (parent, { date }) => {
       const tablesCopy = tables
       for (let i = 0; i < tablesCopy.length; i++) {
@@ -645,7 +496,6 @@ return { errorMessage }
             return item
           }
         })
-
         tablesCopy[i].timeForBooking = currentDateBookingElements
       }
       const arrayOfAbleToBookTables = []
@@ -667,24 +517,16 @@ return { errorMessage }
         ...table,
         timeForBooking: table.timeForBooking.filter(item => item.isBookedBy === user)
       }));
-
-      console.log("NEWWWWWWW", JSON.stringify(yourBookedOffersArray));
       return yourBookedOffersArray;
     },
     getYourBookedTablesHistory: (parent, { user }) => {
-      console.log("YOUR BOOKED TABLES HISTORY", user);
       const tablesCopy = JSON.parse(JSON.stringify(tables));
-
-      console.log("COPYYYYYY" + JSON.stringify(tablesCopy))
       const yourBookedOffersArray = tablesCopy.map(table => ({
         ...table,
-        //  history: table.timeForBooking.filter(item => item.isBookedBy === user)
         history: table.history.filter(item => item.isBookedBy === user)
       }));
-      console.log("NEWWWWWWW HISTORYYYYYYYYYY", JSON.stringify(yourBookedOffersArray));
       return yourBookedOffersArray;
     }
-
   },
   Subscription: {
     currentNumber: {
@@ -703,20 +545,15 @@ async function startServer() {
   await server.start();
   const app = express();
   server.applyMiddleware({ app });
-
   const httpServer = createServer(app);
-
   const subscriptionServer = SubscriptionServer.create(
     { schema, execute, subscribe },
     { server: httpServer, path: '/graphql' }
   );
-
   httpServer.listen(PORT, () => {
     console.log(`🚀 Server ready at http://localhost:${PORT}${server.graphqlPath}`);
     console.log(`🚀 Subscriptions ready at ws://localhost:${PORT}${server.graphqlPath}`);
   });
-
-
   function incrementNumber() {
     const currentDate = new Date();
     const formattedTime = `${currentDate.getHours()}:${currentDate.getMinutes()}:${currentDate.getSeconds()}`;
@@ -742,40 +579,3 @@ async function startServer() {
 
 startServer().catch(error => console.error(error));
 
-
-
-/*
-mutation CreateBookingAction {
-  createBookingAction(input: {
-    tableID: 1
-    from: "12:00"
-    to: "14:00"
-    amountOfChairs: 3
-    dataOfBooking: "16-3-2024"
-    isBookedBy: "valera"
-  }) {
-    bookingElement {
-      tableID
-      from
-      to
-      amountOfChairs
-      dataOfBooking
-      isBookedBy
-    }
-    errorMessage
-  }
-}
-
-
-query {
-  getTableInfo(id: 3, date: "16-03-2024") {
-    id
-    amountOfChairs
-    timeForBooking {
-    dataOfBooking
-    
-    }
-  }
-}
-
-*/

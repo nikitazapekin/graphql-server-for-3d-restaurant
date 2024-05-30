@@ -9,6 +9,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
+  
   "dependencies": {
     "@apollo/server": "^4.10.0",
     "@google-cloud/pubsub": "^4.3.2",
