@@ -408,11 +408,7 @@ const resolvers = {
               selectedElement[0].isConfirmed = true
               tables[Number(selectedElement[0].tableID) - 1].timeForBooking.push(selectedElement[0])
               isAdded = true
-              /*      tables = tables.map(table => ({
-                      ...table,
-                      history: table.history.filter(item => !(item.isBookedBy === input.isBookedBy && item.tableID === input.tableID && input.from === item.from && input.to === item.to && input.dataOfBooking === item.dataOfBooking))
-                    }));
-                    */
+             
               console.log("------------------------------------------")
               console.log("INPUT" + JSON.stringify(input))
               tables = tables.map(table => ({
@@ -429,12 +425,18 @@ const resolvers = {
           }
         }
       }
-      tables = tables.map(table => ({
-        ...table,
 
-        history: table.history.filter(item => !(item.isBookedBy === input.isBookedBy && item.tableID === input.tableID && input.from === item.from && input.to === item.to && input.dataOfBooking === item.dataOfBooking))
+      if(errorMessage.length>0) {
+        console.log("MOREEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE")
+      } else {
+
+        tables = tables.map(table => ({
+          ...table,
+
+          history: table.history.filter(item => !(item.isBookedBy === input.isBookedBy && item.tableID === input.tableID && input.from === item.from && input.to === item.to && input.dataOfBooking === item.dataOfBooking))
         //  history: table.history.filter(item => !(item.isBookedBy === input.isBookedBy && item.tableID === input.tableID && input.from === item.from && input.to === item.to && input.dataOfBooking === item.dataOfBooking))
       }));
+        }
       tables = tables.map(table => ({
         ...table,
         timeForBooking: [...new Set(table.timeForBooking)]
