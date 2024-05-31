@@ -350,7 +350,7 @@ const resolvers = {
 
     },
     replaceFromHistory: (parent, { input }) => {
-console.log("REPLACE FROM HISTORY")
+      console.log("REPLACE FROM HISTORY")
       const selectedElement = tables.map(table =>
         table.history.filter(item =>
           item.isBookedBy === input.isBookedBy &&
@@ -361,7 +361,7 @@ console.log("REPLACE FROM HISTORY")
         )
       ).flat();
 
-      console.log("selected" +JSON.stringify(selectedElement))
+      console.log("selected" + JSON.stringify(selectedElement))
       let errorMessage = ""
       let isAdded = false
       for (let i = 0; i < tables.length; i++) {
@@ -402,16 +402,26 @@ console.log("REPLACE FROM HISTORY")
             }
           }
           else {
+            console.log("FLAGggggggggggggggggggggggggggggggggggggg")
             if (flag) {
+
               selectedElement[0].isConfirmed = true
               tables[Number(selectedElement[0].tableID) - 1].timeForBooking.push(selectedElement[0])
               isAdded = true
+              /*      tables = tables.map(table => ({
+                      ...table,
+                      history: table.history.filter(item => !(item.isBookedBy === input.isBookedBy && item.tableID === input.tableID && input.from === item.from && input.to === item.to && input.dataOfBooking === item.dataOfBooking))
+                    }));
+                    */
+              console.log("------------------------------------------")
+              console.log("INPUT" + JSON.stringify(input))
               tables = tables.map(table => ({
                 ...table,
+
                 history: table.history.filter(item => !(item.isBookedBy === input.isBookedBy && item.tableID === input.tableID && input.from === item.from && input.to === item.to && input.dataOfBooking === item.dataOfBooking))
+                //  history: table.history.filter(item => !(item.isBookedBy === input.isBookedBy && item.tableID === input.tableID && input.from === item.from && input.to === item.to && input.dataOfBooking === item.dataOfBooking))
               }));
-
-
+              console.log("NEW " + JSON.stringify(tables))
             }
             else {
               errorMessage = `You cannot book this table as it is already booked for typed time`
@@ -419,13 +429,20 @@ console.log("REPLACE FROM HISTORY")
           }
         }
       }
+      tables = tables.map(table => ({
+        ...table,
 
+        history: table.history.filter(item => !(item.isBookedBy === input.isBookedBy && item.tableID === input.tableID && input.from === item.from && input.to === item.to && input.dataOfBooking === item.dataOfBooking))
+        //  history: table.history.filter(item => !(item.isBookedBy === input.isBookedBy && item.tableID === input.tableID && input.from === item.from && input.to === item.to && input.dataOfBooking === item.dataOfBooking))
+      }));
       tables = tables.map(table => ({
         ...table,
         timeForBooking: [...new Set(table.timeForBooking)]
 
-        
+
       }));
+      console.log("=============================================")
+      console.log("NEWWW" + JSON.stringify(tables))
       return { errorMessage }
 
     },
@@ -449,7 +466,7 @@ console.log("REPLACE FROM HISTORY")
           }
         }),
       }));
-      console.log("TABLESSSSSSSSS" +JSON.stringify(tables))
+      console.log("TABLESSSSSSSSS" + JSON.stringify(tables))
       return tables
     }
   },
@@ -517,6 +534,8 @@ console.log("REPLACE FROM HISTORY")
         ...table,
         timeForBooking: table.timeForBooking.filter(item => item.isBookedBy === user)
       }));
+
+      console.log("YOUR" + JSON.stringify(tablesCopy))
       return yourBookedOffersArray;
     },
     getYourBookedTablesHistory: (parent, { user }) => {
